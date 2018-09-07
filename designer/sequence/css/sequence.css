@@ -1,0 +1,49 @@
+.design-panel{
+    width: 100%;
+    min-height: 300px;
+    min-width: 300px;
+    background-color: #eee;
+    border: 1px solid #bbb;
+    padding: 20px;
+    overflow: auto;
+    text-align: center;
+}
+
+a.close{
+    float: right;
+    margin-top:0px;
+    margin-right:0px;
+    margin-bottom:5px;
+    margin-left:5px;
+    cursor: pointer;
+}
+
+.card{
+    display: inline-block;
+    min-width: 300px;
+    margin: 5px 0px;
+}
+
+.card-header{
+    padding: 0.25rem 0.75rem;
+    text-align: left;
+}
+
+.card-header > i{
+    margin-right: 3px;
+}
+
+.card-body{
+    text-align: center;
+    padding: 0.4rem;
+}
+
+.drop-zone{
+    padding: 10px;
+    text-align: center;
+    transition: background-color 0.5s ease;
+}
+
+.drop-zone:hover{
+    background-color: #e8f0ff;
+}
