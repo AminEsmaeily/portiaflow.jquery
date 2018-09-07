@@ -47,11 +47,22 @@
                 $(element).addClass('design-panel');
 
                 var firstElement =getSequenceControl();
-                var seconElement = getSequenceControl();
-                seconElement.appendTo(firstElement.find('.card-body'));
+                var seconElement = getIfElement();
+                var thirdElement = getWhileElement();
+                seconElement.appendTo(firstElement.find('.card-body').first());
+                thirdElement.appendTo(firstElement.find('.card-body').first());
                 updateSequenceContent(firstElement);
                 firstElement.appendTo(element);
                 return null;
+            }
+
+            var newUniqId = function() {
+                return 'xxxxxxxxxxxx'.replace(/[xy]/g,
+                function(c) {
+                var r = Math.random() * 16 | 0,
+                    v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+                }).toUpperCase();
             }
 
             // This method constructs the main skleton of the element
@@ -97,7 +108,20 @@
                     });
                 });
 
+                var id = 'content' + newUniqId();
+
+                var collapseButton = $('<a></a>')
+                    .addClass('btn-collapse')
+                    .attr('data-toggle', 'collapse')
+                    .attr('href', '#'+id)
+                    .attr('aria-expanded', 'true')
+                    .attr('aria-controls', id)
+                    .append($('<i class="fa fa-chevron-down"></i>'))
+                    .appendTo(header);
+
                 var body =  $('<div></div>')
+                    .attr('id', id)
+                    .addClass('collapse show')
                     .addClass('panel-body card-body')
                     .appendTo(element);
 
@@ -148,13 +172,76 @@
                     }); 
             }
 
+            // This method creates an If element
             var getIfElement = function(){
                 var element = getContainerElement();
                 element.addClass('element-if');
 
                 var header = $(element.find('.panel-header').first());
-                header.append($('<i class="fa fa-sitemap"></i>')); 
-                header.append('Sequence');
+                header.append($('<i class="fa fa-exchange"></i>')); 
+                header.append('If');
+
+                var body = $(element.find('.panel-body').first());
+                var conditionRow = $('<div></div>')
+                    .addClass('row sequence-row')
+                    .append($('<label>Condition</label>'))
+                    .append($('<br/>'))
+                    .append($('<input type="text"/>')
+                        .addClass('condition-input'))
+                    .appendTo(body);
+
+                var casesRow = $('<div></div>')
+                    .addClass('row sequence-row')
+                    .appendTo(body);
+
+                var ifColumn = $('<div></div>')
+                    .addClass('col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6 column')
+                    .append($('<label>If</label>'))
+                    .append($('<br/>'))
+                    .append($('<div></div>')
+                        .addClass('container-div')
+                        .append(getDropZone()))
+                    .appendTo(casesRow);
+
+                var elseColumn = $('<div></div>')
+                    .addClass('col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6 column')
+                    .append($('<label>Else</label>'))
+                    .append($('<br/>'))
+                    .append($('<div></div>')
+                        .addClass('container-div')
+                        .append(getDropZone()))
+                    .appendTo(casesRow);
+
+                return element;
+            }
+
+            var getWhileElement = function(){
+                var element = getContainerElement();
+                element.addClass('element-if');
+
+                var header = $(element.find('.panel-header').first());
+                header.append($('<i class="fa fa-refresh"></i>')); 
+                header.append('While');
+
+                var body = $(element.find('.panel-body').first());
+
+                var conditionRow = $('<div></div>')
+                    .addClass('row sequence-row')
+                    .append($('<label>Condition</label>'))
+                    .append($('<br/>'))
+                    .append($('<input type="text"/>')
+                        .addClass('condition-input'))
+                    .appendTo(body);
+
+                var loopRow = $('<div></div>')
+                    .addClass('row sequence-row')
+                    .append($('<div></div>')
+                        .addClass('col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 column')
+                        .append(getDropZone()))
+                    .appendTo(body);
+
+
+                return element;
             }
 
             return init(this);

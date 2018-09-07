@@ -18,6 +18,12 @@ a.close{
     cursor: pointer;
 }
 
+a.btn-collapse{
+    float: right;
+    color: inherit !important;
+    margin-top: 5px;
+}
+
 .card{
     display: inline-block;
     min-width: 300px;
@@ -46,4 +52,24 @@ a.close{
 
 .drop-zone:hover{
     background-color: #e8f0ff;
+}
+
+.sequence-row{
+    margin-right: 0px !important;
+    margin-left: 0px !important;
+}
+
+.condition-input{
+    width: 100%;
+}
+
+.container-div{
+    border: 1px solid #ddd;
+    min-width: 200px;
+    padding: 5px;
+}
+
+.column{
+    padding: 5px !important;
+    text-align: left;
 }
