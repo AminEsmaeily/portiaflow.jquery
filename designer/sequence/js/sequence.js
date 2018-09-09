@@ -236,8 +236,10 @@
                 var loopRow = $('<div></div>')
                     .addClass('row sequence-row')
                     .append($('<div></div>')
-                        .addClass('col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 column')
+                        .addClass('col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 column container-div')
+                        .css('padding', '0px')
                         .append(getDropZone()))
+                    .css('margin-top', '5px')
                     .appendTo(body);
 
 
