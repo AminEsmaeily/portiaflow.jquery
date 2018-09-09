@@ -48,6 +48,13 @@ a.btn-collapse{
     padding: 10px;
     text-align: center;
     transition: background-color 0.5s ease;
+    display: table;
+    width: 100%;
+}
+
+.drop-zone i{
+    display: table-cell;
+    vertical-align: middle;
 }
 
 .drop-zone:hover{
@@ -72,4 +79,18 @@ a.btn-collapse{
 .column{
     padding: 5px !important;
     text-align: left;
+}
+
+.element-dragging{
+    z-index: 9999;
+    opacity: 0.8;
+    filter: alpha(opacity=80);
+}
+
+.droppable-active-class{
+    background-color: #f2f6fc;
+}
+
+.droppable-hover-class{
+    background-color: #e8f0ff;
 }

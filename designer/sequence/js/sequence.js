@@ -55,6 +55,8 @@
                 firstElement.appendTo(element);
                 return null;
             }
+                        
+            var isDropCatched = false;
 
             var newUniqId = function() {
                 return 'xxxxxxxxxxxx'.replace(/[xy]/g,
@@ -68,6 +70,7 @@
             // This method constructs the main skleton of the element
             var getContainerElement = function(){
                 var element = $('<div></div>')
+                    .addClass('sequence-control')
                     .addClass('panel card')
                     .addClass('panel-default bg-default');
 
@@ -125,6 +128,41 @@
                     .addClass('panel-body card-body')
                     .appendTo(element);
 
+                // Making draggable
+                var firstOffset = element.offset();
+                element.draggable(
+                    {
+                        handle : ".panel-header",
+                        start : function(event, ui){
+                            element.addClass("element-dragging");
+                            isDropCatched = false;
+                            firstOffset = element.offset();
+                        },
+                        stop : function(event, ui){
+                            element.removeClass("element-dragging");
+                            if(!isDropCatched){
+                                element.offset(
+                                    {
+                                        left : firstOffset.left - $('.design-panel').scrollLeft(),
+                                        top : firstOffset.top - $('.design-panel').scrollTop()
+                                    }
+                                );
+                                
+                                // Enforcing the jquery to reposition the element in case of scrolling view
+                                if(element.offset().left !== firstOffset.left ||
+                                    element.offset().top !== firstOffset.top){
+                                    element.offset(
+                                        {
+                                            left : firstOffset.left - $('.design-panel').scrollLeft(),
+                                            top : firstOffset.top - $('.design-panel').scrollTop()
+                                        }
+                                    );
+                                }
+                            }
+                        }
+                    });
+                //==================
+
                 return element;
             }
 
@@ -132,6 +170,20 @@
                 var element = $('<div></div>')
                     .addClass('drop-zone')
                     .append('<i class="fa fa-lg fa-caret-down"></i>');
+
+                element.droppable({
+                    acceptable : '.sequence-control',
+                    activeClass: "droppable-active-class",
+                    hoverClass: "droppable-hover-class",
+                    tolerance: "pointer",
+                    drop : function(event, ui){
+                        //event.preventDefault();
+                        var draggable = $(ui.draggable.first());
+                        //draggable.detach();
+                        //$(event.target).replace(draggable);
+                        console.log($(element).parents());
+                    }
+                });
 
                 return element;
             }
