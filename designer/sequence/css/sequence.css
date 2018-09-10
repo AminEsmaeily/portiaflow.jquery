@@ -2,11 +2,31 @@
     width: 100%;
     min-height: 300px;
     min-width: 300px;
-    background-color: #eee;
     border: 1px solid #bbb;
     padding: 20px;
     overflow: auto;
     text-align: center;
+
+    background-color: #ffffff;
+    background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+    background-position: -2px -2px, -2px -2px, -1px -1px, -1px -1px;
+    background-image: -webkit-linear-gradient(rgb(0, 0, 0, 0.3) 1px, transparent 1px),
+                    -webkit-linear-gradient(0, rgb(0, 0, 0, 0.3) 1px, transparent 1px),
+                    -webkit-linear-gradient(rgb(0, 0, 0, 0.1) 1px, transparent 1px),
+                    -webkit-linear-gradient(0, rgb(0, 0, 0, 01) 1px, transparent 1px);
+    background-image: -moz-linear-gradient(rgb(0, 0, 0, 0.3) 1px, transparent 1px),
+                    -moz-linear-gradient(0, rgb(0, 0, 0, 0.3) 1px, transparent 1px),
+                    -moz-linear-gradient(rgb(0, 0, 0, 0.1) 1px, transparent 1px),
+                    -moz-linear-gradient(0, rgb(0, 0, 0, 0.1) 1px, transparent 1px);
+    background-image: linear-gradient(rgb(0, 0, 0, 0.3) 1px, transparent 1px),
+                    linear-gradient(90deg, rgb(0, 0, 0, 0.3) 1px, transparent 1px),
+                    linear-gradient(rgb(0, 0, 0, 0.1) 1px, transparent 1px),
+                    linear-gradient(90deg, rgb(0, 0, 0, 0.1) 1px, transparent 1px);
+    -pie-background: linear-gradient(rgb(0, 0, 0, 0.3) 1px, transparent 1px) -2px -2px / 100px,
+                    linear-gradient(90deg, rgb(0, 0, 0, 0.3) 2px, transparent 2px) -2px -2px / 100px,
+                    linear-gradient(rgb(0, 0, 0, 0.1) 1px, transparent 1px) -1px -1px / 20px,
+                    linear-gradient(90deg, rgb(0, 0, 0, 0.1) 1px, transparent 1px) -1px -1px / 20px,
+                    #269;
 }
 
 a.close{
@@ -22,6 +42,7 @@ a.btn-collapse{
     float: right;
     color: inherit !important;
     margin-top: 5px;
+    cursor: pointer;
 }
 
 .card{
@@ -47,7 +68,7 @@ a.btn-collapse{
 .drop-zone{
     padding: 10px;
     text-align: center;
-    transition: background-color 0.5s ease;
+    transition: background-color 0.5s ease, color 0.5s ease;  
     display: table;
     width: 100%;
 }
@@ -58,7 +79,8 @@ a.btn-collapse{
 }
 
 .drop-zone:hover{
-    background-color: #e8f0ff;
+    background-color: #455a64;
+    color: white;
 }
 
 .sequence-row{
@@ -88,9 +110,10 @@ a.btn-collapse{
 }
 
 .droppable-active-class{
-    background-color: #f2f6fc;
+    background-color: #718792;
 }
 
 .droppable-hover-class{
-    background-color: #e8f0ff;
+    background-color: #455a64;
+    color: white;
 }

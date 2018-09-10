@@ -47,11 +47,13 @@
                 $(element).addClass('design-panel');
 
                 var firstElement =getSequenceControl();
-                var seconElement = getIfElement();
-                var thirdElement = getWhileElement();
+                var seconElement = getIfControl();
+                var thirdElement = getWhilecontrol();
+                var fourthElement = getSequenceControl();
                 seconElement.appendTo(firstElement.find('.card-body').first());
                 thirdElement.appendTo(firstElement.find('.card-body').first());
                 updateSequenceContent(firstElement);
+                fourthElement.appendTo(seconElement.find('.container-if').first());
                 firstElement.appendTo(element);
                 return null;
             }
@@ -72,7 +74,16 @@
                 var element = $('<div></div>')
                     .addClass('sequence-control')
                     .addClass('panel card')
+                    .addClass('text-body')
                     .addClass('panel-default bg-default');
+
+                element.click(function(event){
+                    event.stopPropagation();
+                    $('.bg-info').addClass('bg-default');
+                    $('.bg-info').removeClass('bg-info');
+                    $(this).addClass('bg-info');
+                    $(this).removeClass('bg-default');
+                });
 
                 var header = $('<div></div>')
                     .addClass('panel-header card-header')
@@ -115,16 +126,31 @@
 
                 var collapseButton = $('<a></a>')
                     .addClass('btn-collapse')
-                    .attr('data-toggle', 'collapse')
+                    /*.attr('data-toggle', 'collapse')
                     .attr('href', '#'+id)
                     .attr('aria-expanded', 'true')
-                    .attr('aria-controls', id)
-                    .append($('<i class="fa fa-chevron-down"></i>'))
+                    .attr('aria-controls', id)*/
+                    .append($('<i class="fa fa-chevron-up"></i>'))
                     .appendTo(header);
+
+                collapseButton.click(function(event){
+                    event.stopPropagation();
+                    var body = $(this).parents('.card').first().find('.card-body');
+                    if(body.css('display') === 'none')
+                    {
+                        $(this).children().removeClass('fa-chevron-down');
+                        $(this).children().addClass('fa-chevron-up');
+                    }
+                    else
+                    {
+                        $(this).children().removeClass('fa-chevron-up');
+                        $(this).children().addClass('fa-chevron-down');
+                    }
+                    body.slideToggle('slow');
+                });
 
                 var body =  $('<div></div>')
                     .attr('id', id)
-                    .addClass('collapse show')
                     .addClass('panel-body card-body')
                     .appendTo(element);
 
@@ -177,11 +203,28 @@
                     hoverClass: "droppable-hover-class",
                     tolerance: "pointer",
                     drop : function(event, ui){
-                        //event.preventDefault();
+                        event.preventDefault();
+                        isDropCatched = true;
                         var draggable = $(ui.draggable.first());
-                        //draggable.detach();
-                        //$(event.target).replace(draggable);
-                        console.log($(element).parents());
+                        var draggableParent = draggable.parents('.sequence-control').first();
+                        var droppableParent = $(this).parents('.sequence-control').first();
+
+                        var directParent = draggable.parent();
+                        
+                        $(this).replaceWith(draggable);
+                        draggable.css('top', '0');
+                        draggable.css('left', '0');
+
+                        if(draggableParent.hasClass('element-sequence'))
+                            updateSequenceContent(draggableParent);
+
+                        if(droppableParent.hasClass('element-sequence'))
+                            updateSequenceContent(droppableParent);
+
+                        if(directParent.hasClass('container-div')){
+                            directParent.children().remove();
+                            directParent.append(getDropZone());
+                        }
                     }
                 });
 
@@ -192,7 +235,6 @@
             var getSequenceControl = function(){
                 var element = getContainerElement();
                 element.addClass('element-sequence');
-                //fa-sitemap
                 var header = $(element.find('.panel-header').first());
                 header.append($('<i class="fa fa-sitemap"></i>')); 
                 header.append('Sequence');
@@ -203,29 +245,23 @@
 
             // This method rearrange content of the sequence node
             var updateSequenceContent = function(sender){
-                    var body = $($(sender).find('.panel-body').first());
-                    body.children().remove('.drop-zone');
+                var body = $($(sender).find('.panel-body').first());
+                body.children('.drop-zone').remove();
+                var children = body.children();
+                var drpZone = getDropZone();
+                if(children.length === 0)
+                    drpZone.appendTo(body);
+                else
+                    drpZone.insertBefore(children.first());
 
-                    var children = body.children();
-                    var drpZone = getDropZone();
-                    if(children.length === 0)
-                        drpZone.appendTo(body);
-                    else
-                        drpZone.insertBefore(children.first());
-                    $.each(children, function(i, e){
-                        drpZone = getDropZone();
-                        drpZone.insertAfter(e);
-                    });
-
-                    body.children('.drop-zone').on('drop', function(event){
-                        event.preventDefault();  
-                        event.stopPropagation();
-                        updateSequenceContent(sender);
-                    }); 
+                $.each(children, function(i, e){
+                    drpZone = getDropZone();
+                    drpZone.insertAfter(e);
+                });
             }
 
             // This method creates an If element
-            var getIfElement = function(){
+            var getIfControl = function(){
                 var element = getContainerElement();
                 element.addClass('element-if');
 
@@ -247,29 +283,31 @@
                     .appendTo(body);
 
                 var ifColumn = $('<div></div>')
-                    .addClass('col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6 column')
+                    .addClass('column')
                     .append($('<label>If</label>'))
                     .append($('<br/>'))
                     .append($('<div></div>')
                         .addClass('container-div')
+                        .addClass('container-if')
                         .append(getDropZone()))
                     .appendTo(casesRow);
 
                 var elseColumn = $('<div></div>')
-                    .addClass('col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6 column')
+                    .addClass('column')
                     .append($('<label>Else</label>'))
                     .append($('<br/>'))
                     .append($('<div></div>')
                         .addClass('container-div')
+                        .addClass('container-else')
                         .append(getDropZone()))
                     .appendTo(casesRow);
 
                 return element;
             }
 
-            var getWhileElement = function(){
+            var getWhilecontrol = function(){
                 var element = getContainerElement();
-                element.addClass('element-if');
+                element.addClass('element-while');
 
                 var header = $(element.find('.panel-header').first());
                 header.append($('<i class="fa fa-refresh"></i>')); 
@@ -288,7 +326,7 @@
                 var loopRow = $('<div></div>')
                     .addClass('row sequence-row')
                     .append($('<div></div>')
-                        .addClass('col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 column container-div')
+                        .addClass('col-lg-12 col-md-12 col-sm-12 col-xs-12 column container-div')
                         .css('padding', '0px')
                         .append(getDropZone()))
                     .css('margin-top', '5px')
