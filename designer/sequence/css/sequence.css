@@ -8,6 +8,9 @@
     text-align: center;
 
     background-color: #ffffff;
+}
+
+.grid-background{    
     background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
     background-position: -2px -2px, -2px -2px, -1px -1px, -1px -1px;
     background-image: -webkit-linear-gradient(rgb(0, 0, 0, 0.3) 1px, transparent 1px),

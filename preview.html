@@ -1,0 +1,138 @@
+<html encoding="UTF8">
+    <header>
+        <!--------------Required----------------->
+        <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" href="node_modules/jquery-confirm/css/jquery-confirm.css">
+        <!--------------------------------------->
+        <link rel="stylesheet" href="designer/sequence/css/sequence.css">
+
+        <link rel="stylesheet" href="node_modules/golden-layout/src/css/goldenlayout-base.css">
+        <link rel="stylesheet" href="node_modules/golden-layout/src/css/goldenlayout-translucent-theme.css">
+        <link rel="stylesheet" href="css/site.css">
+    </header>
+    <body>
+    </body>
+
+    <!------------------Required------------------>
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="node_modules/jquery-confirm/js/jquery-confirm.js"></script>
+    <script src="node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
+    <script src="node_modules/jquery-ui-touch-punch-amd/jquery.ui.touch-punch.min.js"></script>
+    <script src="node_modules/esprima/dist/esprima.js"></script>
+    <!-------------------------------------------->
+
+    <script src="designer/sequence/js/sequence.js"></script>
+
+    <script src="node_modules/golden-layout/dist/goldenlayout.min.js"></script>
+
+    <script>
+        var seqDesigner;
+        $(document).ready(function(){
+            var config = {
+                content : [{
+                    type : 'row',
+                    content : [{
+                        type : 'column',
+                        width : 15,
+                        content : [{
+                            type : 'component',
+                            componentName : 'designer',
+                            isClosable : false,
+                            title : 'Toolbox',
+                            componentState : { contentType : "toolbox" }
+                        }]
+                    },{
+                        type : 'column',
+                        content : [{
+                            type : 'component',
+                            componentName : 'designer',
+                            isClosable : false,
+                            title : 'Designer',
+                            componentState : { contentType : "designer" }
+                        },{
+                            type : 'stack',
+                            height : 30,
+                            content : [{
+                                type : 'component',
+                                componentName : 'designer',
+                                isClosable : false,
+                                title : 'Variables',
+                                componentState : { contentType : "variables" }
+                            },{
+                                type : 'component',
+                                componentName : 'designer',
+                                isClosable : false,
+                                title : 'Log',
+                                componentState : { contentType : "log" }
+                            },{
+                                type : 'component',
+                                componentName : 'designer',
+                                title : 'Output',
+                                componentState : { contentType : "output" }
+                            }]
+                        }]
+                    }]
+                }]
+            };
+
+            var myLayout  = new GoldenLayout(config);
+
+            var diagram = $('<div></div>').seqDesigner(
+                {
+                    hostControl : 'sequence',
+                    drawGridLines : true,
+                    modelChanged : function(){
+                        //$("#jsonStructure").jJsonViewer(diagram.getJSON());
+                    },
+                    selectedNodeChanged : function(item){
+                        //$("#varTableContainer").empty();
+                        //$("#varTableContainer").append(getVariablesTable(item));
+                    }
+                });
+
+            myLayout.registerComponent('designer', function(container, componentState){
+                if(componentState.contentType === "designer"){
+                    container.getElement().html($("<div></div>")
+                        .addClass("designerContainer")
+                        .append(diagram.first()).first());
+                }
+                else if(componentState.contentType === "toolbox"){
+                    container.getElement().html(getToolbox(diagram.getElements()));
+                }
+                else if(componentState.contentType === "output"){
+                    //var outputPanel = getOutputPanel();
+                    //container.getElement().html(outputPanel);
+                }
+                else if(componentState.contentType === "variables"){
+                    //var outputPanel  = getVariablesPanel();
+                    //container.getElement().html(outputPanel);
+                }
+            });
+            myLayout.init();
+        });
+
+        var getToolbox = function(items){            
+            var ul = $('<ul></ul>');
+            var mainElement = $('<i>Main Elements</i>')
+                .appendTo(ul);
+
+            var container = $('<div></div>')
+                .addClass('designerContainer')
+                .append(ul);
+            
+            for(var i = 0; i < items.mainElements.length; i++){
+                var li = $('<li></li>')
+                            .addClass('list-group-item list-group-item-action list-group-item-info')
+                            .append($('<i style="margin-right:5px;"></i>')
+                                        .addClass('fa ' + items.mainElements[i].icon))
+                            .append(items.mainElements[i].title)
+                            .appendTo(ul);
+            }
+
+            ul.css('padding', '0');
+            return container.css('padding', '5');
+        }
+    </script>
+</html>

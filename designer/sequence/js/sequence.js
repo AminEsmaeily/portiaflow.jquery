@@ -32,30 +32,51 @@
 }
 
     (function($, window, document, undefined){
-        $.fn.diagram = function(options){
+        $.fn.seqDesigner = function(options){
             // Configuring settings
             var settings = $.fn.extend({
                 toolbar : { visible : false },
-                hostControl : 'sequence',
+                hostElement : 'sequence',
                 drawGridLines : true,
                 modelChanged : null,
                 selectedNodeChanged : null
             }, options || {});
 
+            // Elements List
+            var elements = {
+                mainElements : [
+                    {
+                        name: 'sequence',
+                        title: 'Sequence',
+                        icon: 'fa-sitemap'
+                    },
+                    {
+                        name: 'if',
+                        title: 'If',
+                        icon: 'fa-exchange'
+                    },
+                    {
+                        name: 'while',
+                        title: 'While',
+                        icon: 'fa-refresh'
+                    }
+                ]
+            };
+
             // Private methods
             var init = function(element){
                 $(element).addClass('design-panel');
 
-                var firstElement =getSequenceControl();
-                var seconElement = getIfControl();
-                var thirdElement = getWhilecontrol();
-                var fourthElement = getSequenceControl();
-                seconElement.appendTo(firstElement.find('.card-body').first());
-                thirdElement.appendTo(firstElement.find('.card-body').first());
-                updateSequenceContent(firstElement);
-                fourthElement.appendTo(seconElement.find('.container-if').first());
-                firstElement.appendTo(element);
-                return null;
+                if(settings.hostElement === 'sequence')
+                    element.append(getSequenceControl(true));
+                else if(settings.hostElement === 'if')
+                    element.append(getIfControl(true));
+                else if(settings.hostElement === 'while')
+                    element.append(getWhilecontrol(true));
+
+                if(settings.drawGridLines)
+                    element.addClass('grid-background');
+                return element;
             }
                         
             var isDropCatched = false;
@@ -70,7 +91,21 @@
             }
 
             // This method constructs the main skleton of the element
-            var getContainerElement = function(){
+            var getContainerElement = function(controlName, isHost){
+                if(controlName === undefined)
+                    throw 'Control name is undefined.';
+
+                var controlInfo = null;
+                for(var index = 0; index < elements.mainElements.length; index++){
+                    if(elements.mainElements[index].name === controlName){
+                        controlInfo = elements.mainElements[index];
+                        break;
+                    }
+                }
+
+                if(controlInfo === null)
+                    throw 'Control with name ' + controlName + ' not found.';
+
                 var element = $('<div></div>')
                     .addClass('sequence-control')
                     .addClass('panel card')
@@ -89,47 +124,45 @@
                     .addClass('panel-header card-header')
                     .appendTo(element);
 
-                var closeBtn = $('<a></a>')
-                    .addClass('close')
-                    .attr('aria-label', 'Close')
-                    .append($('<span aria-hidden="true">&times;</span>'))
-                    .appendTo(header);
+                if(isHost !== undefined && isHost !== null && !isHost){
+                    var closeBtn = $('<a></a>')
+                        .addClass('close')
+                        .attr('aria-label', 'Close')
+                        .append($('<span aria-hidden="true">&times;</span>'))
+                        .appendTo(header);
 
-                closeBtn.on('click', function(){
-                    $.confirm({
-                        title: 'Delete',
-                        content: 'Are you sure to remove node?',
-                        buttons: {
-                            yes: {
-                                text: 'Yes',
-                                btnClass: 'btn-red',
-                                keys: ['enter', 'shift'],
-                                action: function(){
-                                    var target = $(closeBtn.parents('.card').first());
-                                    var containerNode = $(target.parents('.card').first()); 
-                                    target.remove();
+                    closeBtn.on('click', function(){
+                        $.confirm({
+                            title: 'Delete',
+                            content: 'Are you sure to remove node?',
+                            buttons: {
+                                yes: {
+                                    text: 'Yes',
+                                    btnClass: 'btn-red',
+                                    keys: ['enter', 'shift'],
+                                    action: function(){
+                                        var target = $(closeBtn.parents('.card').first());
+                                        var containerNode = $(target.parents('.card').first()); 
+                                        target.remove();
 
-                                    if(containerNode.hasClass('element-sequence'))
-                                        updateSequenceContent(containerNode);
+                                        if(containerNode.hasClass('element-sequence'))
+                                            updateSequenceContent(containerNode);
+                                    }
+                                },
+                                no: {
+                                    text: 'No',
+                                    btnClass: 'btn-blue',
+                                    action: function(){}
                                 }
-                            },
-                            no: {
-                                text: 'No',
-                                btnClass: 'btn-blue',
-                                action: function(){}
                             }
-                        }
+                        });
                     });
-                });
+                }
 
                 var id = 'content' + newUniqId();
 
                 var collapseButton = $('<a></a>')
                     .addClass('btn-collapse')
-                    /*.attr('data-toggle', 'collapse')
-                    .attr('href', '#'+id)
-                    .attr('aria-expanded', 'true')
-                    .attr('aria-controls', id)*/
                     .append($('<i class="fa fa-chevron-up"></i>'))
                     .appendTo(header);
 
@@ -148,6 +181,9 @@
                     }
                     body.slideToggle('slow');
                 });
+
+                header.append($('<i class="fa '+controlInfo.icon+'"></i>'));
+                header.append(controlInfo.title);
 
                 var body =  $('<div></div>')
                     .attr('id', id)
@@ -232,12 +268,9 @@
             }
 
             // this method constructs a Sequence node
-            var getSequenceControl = function(){
-                var element = getContainerElement();
+            var getSequenceControl = function(isHost){
+                var element = getContainerElement('sequence', isHost);
                 element.addClass('element-sequence');
-                var header = $(element.find('.panel-header').first());
-                header.append($('<i class="fa fa-sitemap"></i>')); 
-                header.append('Sequence');
 
                 updateSequenceContent(element);
                 return element;
@@ -261,13 +294,9 @@
             }
 
             // This method creates an If element
-            var getIfControl = function(){
-                var element = getContainerElement();
+            var getIfControl = function(isHost){
+                var element = getContainerElement('if', isHost);
                 element.addClass('element-if');
-
-                var header = $(element.find('.panel-header').first());
-                header.append($('<i class="fa fa-exchange"></i>')); 
-                header.append('If');
 
                 var body = $(element.find('.panel-body').first());
                 var conditionRow = $('<div></div>')
@@ -305,13 +334,9 @@
                 return element;
             }
 
-            var getWhilecontrol = function(){
-                var element = getContainerElement();
+            var getWhilecontrol = function(isHost){
+                var element = getContainerElement('while', isHost);
                 element.addClass('element-while');
-
-                var header = $(element.find('.panel-header').first());
-                header.append($('<i class="fa fa-refresh"></i>')); 
-                header.append('While');
 
                 var body = $(element.find('.panel-body').first());
 
@@ -336,7 +361,12 @@
                 return element;
             }
 
-            return init(this);
+            this.getElements = function(){
+                return elements;
+            }
+
+            var designer = init(this);
+            return designer;
         }
     })
 );
