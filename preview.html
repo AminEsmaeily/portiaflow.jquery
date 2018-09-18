@@ -124,11 +124,29 @@
             
             for(var i = 0; i < items.mainElements.length; i++){
                 var li = $('<li></li>')
-                            .addClass('list-group-item list-group-item-action list-group-item-info')
+                            .addClass('list-group-item list-group-item-action list-group-item-info sequence-control')
+                            .addClass(items.mainElements[i].class)
                             .append($('<i style="margin-right:5px;"></i>')
                                         .addClass('fa ' + items.mainElements[i].icon))
                             .append(items.mainElements[i].title)
                             .appendTo(ul);
+
+                var firstOffset;
+                li.draggable({
+                    start : function(event, ui){
+                            $(this).addClass("element-dragging");
+                            firstOffset = $(this).offset();
+                    },
+                    stop : function(event, ui){
+                        $(this).removeClass("element-dragging");
+                        $(this).offset(
+                            {
+                                left : firstOffset.left - $('.designerContainer').scrollLeft(),
+                                top : firstOffset.top - $('.designerContainer').scrollTop()
+                            }
+                        );
+                    }
+                });
             }
 
             ul.css('padding', '0');

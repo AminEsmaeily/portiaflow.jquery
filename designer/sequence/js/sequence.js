@@ -48,17 +48,20 @@
                     {
                         name: 'sequence',
                         title: 'Sequence',
-                        icon: 'fa-sitemap'
+                        icon: 'fa-sitemap',
+                        class: 'element-sequence'
                     },
                     {
                         name: 'if',
                         title: 'If',
-                        icon: 'fa-exchange'
+                        icon: 'fa-exchange',
+                        class: 'element-if'
                     },
                     {
                         name: 'while',
                         title: 'While',
-                        icon: 'fa-refresh'
+                        icon: 'fa-refresh',
+                        class: 'element-while'
                     }
                 ]
             };
@@ -72,7 +75,7 @@
                 else if(settings.hostElement === 'if')
                     element.append(getIfControl(true));
                 else if(settings.hostElement === 'while')
-                    element.append(getWhilecontrol(true));
+                    element.append(getWhileControl(true));
 
                 if(settings.drawGridLines)
                     element.addClass('grid-background');
@@ -202,25 +205,13 @@
                         },
                         stop : function(event, ui){
                             element.removeClass("element-dragging");
-                            if(!isDropCatched){
-                                element.offset(
-                                    {
-                                        left : firstOffset.left - $('.design-panel').scrollLeft(),
-                                        top : firstOffset.top - $('.design-panel').scrollTop()
-                                    }
-                                );
-                                
-                                // Enforcing the jquery to reposition the element in case of scrolling view
-                                if(element.offset().left !== firstOffset.left ||
-                                    element.offset().top !== firstOffset.top){
-                                    element.offset(
-                                        {
-                                            left : firstOffset.left - $('.design-panel').scrollLeft(),
-                                            top : firstOffset.top - $('.design-panel').scrollTop()
-                                        }
-                                    );
-                                }
-                            }
+                        },
+                        revert : function(event, ui) {
+                            $(this).data("uiDraggable").originalPosition = {
+                                top : 0,
+                                left : 0
+                            };
+                            return !event;
                         }
                     });
                 //==================
@@ -240,27 +231,42 @@
                     tolerance: "pointer",
                     drop : function(event, ui){
                         event.preventDefault();
-                        isDropCatched = true;
-                        var draggable = $(ui.draggable.first());
-                        var draggableParent = draggable.parents('.sequence-control').first();
+                        isDropCatched = true;         
+                        var draggable = $(ui.draggable.first());               
+
+                        var isFromDesigner = draggable.find('.card-header').length > 0;
+
                         var droppableParent = $(this).parents('.sequence-control').first();
+                        if(isFromDesigner){
+                            var draggableParent = draggable.parents('.sequence-control').first();
+                            var directParent = draggable.parent();
+                            
+                            $(this).replaceWith(draggable);
+                            draggable.css('top', '0');
+                            draggable.css('left', '0');
 
-                        var directParent = draggable.parent();
-                        
-                        $(this).replaceWith(draggable);
-                        draggable.css('top', '0');
-                        draggable.css('left', '0');
+                            if(draggableParent.hasClass('element-sequence'))
+                                updateSequenceContent(draggableParent);
 
-                        if(draggableParent.hasClass('element-sequence'))
-                            updateSequenceContent(draggableParent);
+                            if(directParent.hasClass('container-div')){
+                                directParent.children().remove();
+                                directParent.append(getDropZone());
+                            }
+                        }
+                        else{
+                            var newElement;
+                            if(draggable.hasClass('element-sequence'))
+                                newElement = getSequenceControl(false);
+                            else if(draggable.hasClass('element-if'))
+                                newElement = getIfControl(false);
+                            else if(draggable.hasClass('element-while'))
+                                newElement = getWhileControl(false);
+
+                            $(this).replaceWith(newElement);
+                        }
 
                         if(droppableParent.hasClass('element-sequence'))
                             updateSequenceContent(droppableParent);
-
-                        if(directParent.hasClass('container-div')){
-                            directParent.children().remove();
-                            directParent.append(getDropZone());
-                        }
                     }
                 });
 
@@ -334,7 +340,7 @@
                 return element;
             }
 
-            var getWhilecontrol = function(isHost){
+            var getWhileControl = function(isHost){
                 var element = getContainerElement('while', isHost);
                 element.addClass('element-while');
 
