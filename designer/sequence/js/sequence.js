@@ -42,7 +42,6 @@
                 selectedNodeChanged : null,
                 elements : [
                     {
-<<<<<<< HEAD
                         title: 'Main Elements',
                         controls: [
                             {
@@ -78,24 +77,6 @@
                     {
                         title: 'Custom Elements',
                         controls:[]
-=======
-                        name: 'sequence',
-                        title: 'Sequence',
-                        icon: 'fa-sitemap',
-                        class: 'element-sequence'
-                    },
-                    {
-                        name: 'if',
-                        title: 'If',
-                        icon: 'fa-exchange',
-                        class: 'element-if'
-                    },
-                    {
-                        name: 'while',
-                        title: 'While',
-                        icon: 'fa-refresh',
-                        class: 'element-while'
->>>>>>> f1679f119f88767f721f3c11fa5b11510d3d419f
                     }
                 ]
             }, options || {});
@@ -269,7 +250,6 @@
                         isDropCatched = true;         
                         var draggable = $(ui.draggable.first());               
 
-<<<<<<< HEAD
                         var directParent = draggable.parent();
                         var replaceItem = draggable;
                         if(draggableParent.length === 0){
@@ -300,9 +280,6 @@
                         $(this).replaceWith(replaceItem);
                         draggable.css('top', '0');
                         draggable.css('left', '0');
-=======
-                        var isFromDesigner = draggable.find('.card-header').length > 0;
->>>>>>> f1679f119f88767f721f3c11fa5b11510d3d419f
 
                         var droppableParent = $(this).parents('.sequence-control').first();
                         if(isFromDesigner){
