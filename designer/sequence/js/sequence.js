@@ -42,6 +42,7 @@
                 selectedNodeChanged : null,
                 elements : [
                     {
+<<<<<<< HEAD
                         title: 'Main Elements',
                         controls: [
                             {
@@ -77,6 +78,24 @@
                     {
                         title: 'Custom Elements',
                         controls:[]
+=======
+                        name: 'sequence',
+                        title: 'Sequence',
+                        icon: 'fa-sitemap',
+                        class: 'element-sequence'
+                    },
+                    {
+                        name: 'if',
+                        title: 'If',
+                        icon: 'fa-exchange',
+                        class: 'element-if'
+                    },
+                    {
+                        name: 'while',
+                        title: 'While',
+                        icon: 'fa-refresh',
+                        class: 'element-while'
+>>>>>>> f1679f119f88767f721f3c11fa5b11510d3d419f
                     }
                 ]
             }, options || {});
@@ -221,25 +240,13 @@
                         },
                         stop : function(event, ui){
                             element.removeClass("element-dragging");
-                            if(!isDropCatched){
-                                element.offset(
-                                    {
-                                        left : firstOffset.left - $('.design-panel').scrollLeft(),
-                                        top : firstOffset.top - $('.design-panel').scrollTop()
-                                    }
-                                );
-                                
-                                // Enforcing the jquery to reposition the element in case of scrolling view
-                                if(element.offset().left !== firstOffset.left ||
-                                    element.offset().top !== firstOffset.top){
-                                    element.offset(
-                                        {
-                                            left : firstOffset.left - $('.design-panel').scrollLeft(),
-                                            top : firstOffset.top - $('.design-panel').scrollTop()
-                                        }
-                                    );
-                                }
-                            }
+                        },
+                        revert : function(event, ui) {
+                            $(this).data("uiDraggable").originalPosition = {
+                                top : 0,
+                                left : 0
+                            };
+                            return !event;
                         }
                     });
                 //==================
@@ -259,11 +266,10 @@
                     tolerance: "pointer",
                     drop : function(event, ui){
                         event.preventDefault();
-                        isDropCatched = true;
-                        var draggable = $(ui.draggable.first());
-                        var draggableParent = draggable.parents('.sequence-control').first();
-                        var droppableParent = $(this).parents('.sequence-control').first();
+                        isDropCatched = true;         
+                        var draggable = $(ui.draggable.first());               
 
+<<<<<<< HEAD
                         var directParent = draggable.parent();
                         var replaceItem = draggable;
                         if(draggableParent.length === 0){
@@ -294,17 +300,41 @@
                         $(this).replaceWith(replaceItem);
                         draggable.css('top', '0');
                         draggable.css('left', '0');
+=======
+                        var isFromDesigner = draggable.find('.card-header').length > 0;
+>>>>>>> f1679f119f88767f721f3c11fa5b11510d3d419f
 
-                        if(draggableParent.hasClass('element-sequence'))
-                            updateSequenceContent(draggableParent);
+                        var droppableParent = $(this).parents('.sequence-control').first();
+                        if(isFromDesigner){
+                            var draggableParent = draggable.parents('.sequence-control').first();
+                            var directParent = draggable.parent();
+                            
+                            $(this).replaceWith(draggable);
+                            draggable.css('top', '0');
+                            draggable.css('left', '0');
+
+                            if(draggableParent.hasClass('element-sequence'))
+                                updateSequenceContent(draggableParent);
+
+                            if(directParent.hasClass('container-div')){
+                                directParent.children().remove();
+                                directParent.append(getDropZone());
+                            }
+                        }
+                        else{
+                            var newElement;
+                            if(draggable.hasClass('element-sequence'))
+                                newElement = getSequenceControl(false);
+                            else if(draggable.hasClass('element-if'))
+                                newElement = getIfControl(false);
+                            else if(draggable.hasClass('element-while'))
+                                newElement = getWhileControl(false);
+
+                            $(this).replaceWith(newElement);
+                        }
 
                         if(droppableParent.hasClass('element-sequence'))
                             updateSequenceContent(droppableParent);
-
-                        if(directParent.hasClass('container-div')){
-                            directParent.children().remove();
-                            directParent.append(getDropZone());
-                        }
                     }
                 });
 

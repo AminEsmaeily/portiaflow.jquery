@@ -124,13 +124,19 @@
             
             for(var i = 0; i < items[0].controls.length; i++){
                 var li = $('<li></li>')
+<<<<<<< HEAD
                             .addClass('list-group-item list-group-item-action list-group-item-info')
                             .addClass(items[0].controls[i].class)
+=======
+                            .addClass('list-group-item list-group-item-action list-group-item-info sequence-control')
+                            .addClass(items.mainElements[i].class)
+>>>>>>> f1679f119f88767f721f3c11fa5b11510d3d419f
                             .append($('<i style="margin-right:5px;"></i>')
                                         .addClass('fa ' + items[0].controls[i].icon))
                             .append(items[0].controls[i].title)
                             .appendTo(ul);
 
+<<<<<<< HEAD
                 li.draggable(
                     {
                         appendTo: 'body',
@@ -138,6 +144,24 @@
                         scroll: false,
                         helper: 'clone'
                     });
+=======
+                var firstOffset;
+                li.draggable({
+                    start : function(event, ui){
+                            $(this).addClass("element-dragging");
+                            firstOffset = $(this).offset();
+                    },
+                    stop : function(event, ui){
+                        $(this).removeClass("element-dragging");
+                        $(this).offset(
+                            {
+                                left : firstOffset.left - $('.designerContainer').scrollLeft(),
+                                top : firstOffset.top - $('.designerContainer').scrollTop()
+                            }
+                        );
+                    }
+                });
+>>>>>>> f1679f119f88767f721f3c11fa5b11510d3d419f
             }
 
             ul.css('padding', '0');

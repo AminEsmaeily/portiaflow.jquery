@@ -2,9 +2,13 @@
     width: 100%;
     height: 100%;
     overflow: auto;
+<<<<<<< HEAD
 }
 
 .list-group-item{
     min-width: 100px;
     width: inherit;
+=======
+    overflow-x: hidden;
+>>>>>>> f1679f119f88767f721f3c11fa5b11510d3d419f
 }
