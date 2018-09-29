@@ -35,7 +35,6 @@
         $.fn.seqDesigner = function(options){
             // Configuring settings
             var settings = $.fn.extend({
-                toolbar : { visible : false },
                 hostElement : 'sequence',
                 drawGridLines : true,
                 modelChanged : null,
