@@ -35,7 +35,6 @@
         $.fn.seqDesigner = function(options){
             // Configuring settings
             var settings = $.fn.extend({
-                toolbar : { visible : false },
                 hostElement : 'sequence',
                 drawGridLines : true,
                 modelChanged : null,
@@ -221,13 +220,25 @@
                         },
                         stop : function(event, ui){
                             element.removeClass("element-dragging");
-                        },
-                        revert : function(event, ui) {
-                            $(this).data("uiDraggable").originalPosition = {
-                                top : 0,
-                                left : 0
-                            };
-                            return !event;
+                            if(!isDropCatched){
+                                element.offset(
+                                    {
+                                        left : firstOffset.left - $('.design-panel').scrollLeft(),
+                                        top : firstOffset.top - $('.design-panel').scrollTop()
+                                    }
+                                );
+                                
+                                // Enforcing the jquery to reposition the element in case of scrolling view
+                                if(element.offset().left !== firstOffset.left ||
+                                    element.offset().top !== firstOffset.top){
+                                    element.offset(
+                                        {
+                                            left : firstOffset.left - $('.design-panel').scrollLeft(),
+                                            top : firstOffset.top - $('.design-panel').scrollTop()
+                                        }
+                                    );
+                                }
+                            }
                         }
                     });
                 //==================
@@ -247,8 +258,10 @@
                     tolerance: "pointer",
                     drop : function(event, ui){
                         event.preventDefault();
-                        isDropCatched = true;         
-                        var draggable = $(ui.draggable.first());               
+                        isDropCatched = true;
+                        var draggable = $(ui.draggable.first());
+                        var draggableParent = draggable.parents('.sequence-control').first();
+                        var droppableParent = $(this).parents('.sequence-control').first();
 
                         var directParent = draggable.parent();
                         var replaceItem = draggable;
@@ -281,37 +294,16 @@
                         draggable.css('top', '0');
                         draggable.css('left', '0');
 
-                        var droppableParent = $(this).parents('.sequence-control').first();
-                        if(isFromDesigner){
-                            var draggableParent = draggable.parents('.sequence-control').first();
-                            var directParent = draggable.parent();
-                            
-                            $(this).replaceWith(draggable);
-                            draggable.css('top', '0');
-                            draggable.css('left', '0');
-
-                            if(draggableParent.hasClass('element-sequence'))
-                                updateSequenceContent(draggableParent);
-
-                            if(directParent.hasClass('container-div')){
-                                directParent.children().remove();
-                                directParent.append(getDropZone());
-                            }
-                        }
-                        else{
-                            var newElement;
-                            if(draggable.hasClass('element-sequence'))
-                                newElement = getSequenceControl(false);
-                            else if(draggable.hasClass('element-if'))
-                                newElement = getIfControl(false);
-                            else if(draggable.hasClass('element-while'))
-                                newElement = getWhileControl(false);
-
-                            $(this).replaceWith(newElement);
-                        }
+                        if(draggableParent.hasClass('element-sequence'))
+                            updateSequenceContent(draggableParent);
 
                         if(droppableParent.hasClass('element-sequence'))
                             updateSequenceContent(droppableParent);
+
+                        if(directParent.hasClass('container-div')){
+                            directParent.children().remove();
+                            directParent.append(getDropZone());
+                        }
                     }
                 });
 
