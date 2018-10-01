@@ -48,7 +48,7 @@
                                 title: 'Sequence',
                                 icon: 'fa-sitemap',
                                 class: 'element-sequence',
-                                constructor: getSequenceControl
+                                constructor: 'getSequenceControl'
                             },
                             {
                                 name: 'if',
@@ -269,7 +269,8 @@
                             $.each(settings.elements[0].controls, function(i, item){
                                 if(draggable.hasClass(item.class)){
                                     try{
-                                        if($.isFunction(item.constructor)){
+                                        console.log(item.constructor);
+                                        if($.isFunction([item.constructor])){
                                             replaceItem = item.constructor();
                                             console.log('Was function');
                                         }
@@ -282,12 +283,12 @@
                                     }
                                 }
                             });
-                            /*if(draggable.hasClass('element-sequence'))
+                            if(draggable.hasClass('element-sequence'))
                                 replaceItem = getSequenceControl(false);
                             else if(draggable.hasClass('element-if'))
                                 replaceItem = getIfControl(false);
                             else if(draggable.hasClass('element-while'))
-                                replaceItem = getWhilecontrol(false);*/
+                                replaceItem = getWhileControl(false);
                         }
                         
                         $(this).replaceWith(replaceItem);
