@@ -48,6 +48,13 @@ a.btn-collapse{
     cursor: pointer;
 }
 
+span.error{
+    float: right;
+    margin-top: 5px;
+    margin-right: 5px;
+    cursor: help;
+}
+
 .card{
     display: inline-block;
     min-width: 300px;
