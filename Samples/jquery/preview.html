@@ -83,6 +83,29 @@
                 {
                     hostControl : 'sequence',
                     drawGridLines : true,
+                    customElements : [
+                        {
+                            title: 'Math Elements',
+                            controls:[
+                                {
+                                    name: 'sum',
+                                    title: 'Sum',
+                                    icon: 'fa-plus',
+                                    class: 'element-sum',
+                                    constructor: function(){
+                                        var element = diagram.getElementStructure('sum');
+                        
+                                        return element;
+                                    },
+                                    validate: function(node){
+                                        var dom = $(node);
+                                        var errorList = [];
+                                        return errorList;
+                                    }
+                                }
+                            ]
+                        }
+                    ],
                     modelChanged : function(){
                         //$("#jsonStructure").jJsonViewer(diagram.getJSON());
                     },
@@ -113,34 +136,37 @@
             myLayout.init();
         });
 
-        var getToolbox = function(items){            
-            var ul = $('<ul></ul>');
-            var mainElement = $('<i>Main Elements</i>')
-                .appendTo(ul);
-
+        var getToolbox = function(items){
             var container = $('<div></div>')
-                .addClass('designerContainer')
-                .append(ul);
+                .addClass('designerContainer');
             
-            for(var i = 0; i < items[0].controls.length; i++){
-                var li = $('<li></li>')
-                            .addClass('list-group-item list-group-item-action list-group-item-info')
-                            .addClass(items[0].controls[i].class)
-                            .append($('<i style="margin-right:5px;"></i>')
-                                        .addClass('fa ' + items[0].controls[i].icon))
-                            .append(items[0].controls[i].title)
-                            .appendTo(ul);
+            $.each(items, function(i, group){                        
+                var ul = $('<ul></ul>')
+                    .appendTo(container)
+                    .css('padding', '0');
+                var mainElement = $('<i></i>')
+                    .append(group.title)
+                    .appendTo(ul);
 
-                li.draggable(
-                    {
-                        appendTo: 'body',
-                        containment: 'window',
-                        scroll: false,
-                        helper: 'clone'
-                    });
-            }
+                for(var i = 0; i < group.controls.length; i++){
+                    var li = $('<li></li>')
+                                .addClass('list-group-item list-group-item-action list-group-item-info')
+                                .addClass(group.controls[i].class)
+                                .append($('<i style="margin-right:5px;"></i>')
+                                            .addClass('fa ' + group.controls[i].icon))
+                                .append(group.controls[i].title)
+                                .appendTo(ul);
 
-            ul.css('padding', '0');
+                    li.draggable(
+                        {
+                            appendTo: 'body',
+                            containment: 'window',
+                            scroll: false,
+                            helper: 'clone'
+                        });
+                }
+            });
+
             return container.css('padding', '5');
         }
     </script>

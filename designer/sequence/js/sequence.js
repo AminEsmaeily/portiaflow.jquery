@@ -37,12 +37,13 @@
             var settings = $.fn.extend({
                 hostElement : 'sequence',
                 drawGridLines : true,
+                customElements : [],
                 modelChanged : null,
                 selectedNodeChanged : null
             }, options || {});
 
             
-            var mainElements = [
+            var mainElements = 
                 {
                     title: 'Main Elements',
                     controls: [
@@ -53,7 +54,6 @@
                             class: 'element-sequence',
                             constructor: function(isHost){
                                 var element = getContainerElement('sequence', isHost);
-                                element.addClass('element-sequence');
                 
                                 updateSequenceContent(element);
                                 return element;
@@ -74,6 +74,7 @@
 
                                     if($.isFunction(info.validate)){
                                         var errors = info.validate($(this));
+                                        setErrorIcon($(this), errors);
                                         $.each(errors, function(){
                                             errorList.push(this);
                                         });
@@ -91,7 +92,6 @@
                             class: 'element-if',
                             constructor: function(isHost){
                                 var element = getContainerElement('if', isHost);
-                                element.addClass('element-if');
                 
                                 var body = $(element.find('.panel-body').first());
                                 var conditionRow = $('<div></div>')
@@ -154,6 +154,7 @@
 
                                     if($.isFunction(info.validate)){
                                         var errors = info.validate(ifCol);
+                                        setErrorIcon(ifCol, errors);
                                         $.each(errors, function(){
                                             errorList.push(this);
                                         });
@@ -168,6 +169,7 @@
 
                                     if($.isFunction(info.validate)){
                                         var errors = info.validate(elseCol);
+                                        setErrorIcon(elseCol, errors);
                                         $.each(errors, function(){
                                             errorList.push(this);
                                         });
@@ -185,7 +187,6 @@
                             class: 'element-while',
                             constructor: function(isHost){
                                 var element = getContainerElement('while', isHost);
-                                element.addClass('element-while');
                 
                                 var body = $(element.find('.panel-body').first());
                 
@@ -233,6 +234,7 @@
 
                                     if($.isFunction(info.validate)){
                                         var errors = info.validate(loop);
+                                        setErrorIcon(loop, errors);
                                         $.each(errors, function(){
                                             errorList.push(this);
                                         });
@@ -251,7 +253,6 @@
                             constructor: function(isHost){
                                 var info = getElement('assign');
                                 var element = getContainerElement(info.name, isHost);
-                                element.addClass(info.class);
                 
                                 var body = $(element.find('.panel-body').first());
                 
@@ -304,8 +305,7 @@
                             }
                         }
                     ]
-                }
-            ];
+                };
 
             // Private methods
             var init = function(element){
@@ -337,14 +337,22 @@
             }
 
             var getElement = function(elementName){
-                for(var i = 0; i < mainElements[0].controls.length; i++){
-                    if(mainElements[0].controls[i].name === elementName)
-                        return mainElements[0].controls[i];
+                var groups = [];
+                groups.push(mainElements);
+                $.each(settings.customElements, function(){
+                    groups.push(this);
+                });
+
+                for(var i = 0; i < groups.length; i++){
+                    for(var j = 0; j < groups[i].controls.length; j++){
+                        if(groups[i].controls[j].name === elementName)
+                            return groups[i].controls[j];
+                    }
                 }
             }
 
             // This method constructs the main skleton of the element
-            var getContainerElement = function(controlName, isHost){
+            var getContainerElement = function(controlName, isHost = false){
                 if(controlName === undefined)
                     throw 'Control name is undefined.';
 
@@ -360,6 +368,7 @@
                     .addClass('panel card')
                     .addClass('text-body')
                     .addClass('panel-default bg-default')
+                    .addClass(controlInfo.class)
                     .attr('name', controlName);
 
                 element.click(function(event){
@@ -510,22 +519,30 @@
                         var directParent = draggable.parent();
                         var replaceItem = draggable;
                         if(draggableParent.length === 0){
-                            $.each(mainElements[0].controls, function(i, item){
-                                if(draggable.hasClass(item.class)){
-                                    try{
-                                        if($.isFunction(item.constructor))
-                                            replaceItem = item.constructor(false);
-                                        else{
-                                            console.error('Constructor for type ' + item.name + ' is not defined');
-                                            replaceItem = null;
+                            var groups = [];
+                            groups.push(mainElements);
+                            $.each(settings.customElements, function(){
+                                groups.push(this);
+                            });
+
+                            for(var i = 0; i < groups.length; i++){
+                                for(var j = 0; j < groups[i].controls.length; j++){
+                                    if(draggable.hasClass(groups[i].controls[j].class)){
+                                        try{
+                                            if($.isFunction(groups[i].controls[j].constructor))
+                                                replaceItem = groups[i].controls[j].constructor(false);
+                                            else{
+                                                console.error('Constructor for type ' + groups[i].controls[j].name + ' is not defined');
+                                                replaceItem = null;
+                                            }
+                                            break;
                                         }
-                                        return;
-                                    }
-                                    catch(ex){
-                                        console.error(ex);
+                                        catch(ex){
+                                            console.error(ex);
+                                        }
                                     }
                                 }
-                            });
+                            }
                         }
                         
                         if(replaceItem == null)
@@ -600,7 +617,17 @@
 
             // Public functions
             this.getElements = function(){
-                return mainElements;
+                var groups = [];
+                groups.push(mainElements);
+                $.each(settings.customElements, function(){
+                    groups.push(this);
+                });
+
+                return groups;
+            }
+
+            this.getElementStructure = function(elementName){
+                return getContainerElement(elementName);
             }
 
             var designer = init(this);
