@@ -94,7 +94,9 @@
                                     class: 'element-sum',
                                     constructor: function(){
                                         var element = diagram.getElementStructure('sum');
-                        
+                                        var body = element.find('.panel-body').first();
+                                        console.log(body);
+                                        $('<input type="text"/>').appendTo($(body));
                                         return element;
                                     },
                                     validate: function(node){

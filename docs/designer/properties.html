@@ -57,7 +57,7 @@
     <link rel="shortcut icon" href="../../gitbook/images/favicon.ico" type="image/x-icon">
 
     
-    <link rel="next" href="properties.html" />
+    <link rel="next" href="../engine.html" />
     
     
     <link rel="prev" href="setup.html" />
@@ -140,51 +140,6 @@
             
 
             
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="1.2.2.1" data-path="properties.html">
-            
-                <a href="properties.html#customElements">
-            
-                    
-                    customElements
-            
-                </a>
-            
-
-            
-        </li>
-    
-        <li class="chapter " data-level="1.2.2.2" data-path="properties.html">
-            
-                <a href="properties.html#drawGridLines">
-            
-                    
-                    drawGridLines
-            
-                </a>
-            
-
-            
-        </li>
-    
-        <li class="chapter " data-level="1.2.2.3" data-path="properties.html">
-            
-                <a href="properties.html#hostElement">
-            
-                    
-                    hostElement
-            
-                </a>
-            
-
-            
-        </li>
-    
-
-            </ul>
-            
         </li>
     
 
@@ -254,8 +209,7 @@
 <h3 id="list-of-properties">List of properties</h3>
 <ul>
 <li><h4 id="customelements">customElements</h4>
-<p>  Default: null<br>You can pass your custom activities to workflow. It holds a list of JSON objects that in the first level of this, it contains groups of items. Each group contains a set of controls that can be used in designer and engine.</p>
-<pre><code class="lang-js">var diagram = $(&apos;&lt;div&gt;&lt;/div&gt;&apos;).seqDesigner(
+  Default: null<br>You can pass your custom activities to workflow. It holds a list of JSON objects that in the first level of this, it contains groups of items. Each group contains a set of controls that can be used in designer and engine.<pre><code class="lang-js">var diagram = $(&apos;&lt;div&gt;&lt;/div&gt;&apos;).seqDesigner(
 {
     hostControl : &apos;sequence&apos;,
     drawGridLines : true,
@@ -299,7 +253,41 @@
     }
 });
 </code></pre>
-<p>At the first level of this structure, we should declare a group and set it&apos;s <em>title</em>. Each group has one/many controls that we can pass them to it using <em>controls</em> property. This property accepts a list of control declarations.</p>
+At the first level of this structure, we should declare a group and set it&apos;s <em>title</em>. Each group has one/many controls that we can set it using <em>controls</em> property. This property accepts a list of control declarations. Required properties for each control are as follows:</li>
+<li><h5 id="properties">Properties</h5>
+<ul>
+<li><h6 id="class">class</h6>
+To being able to customize UI of the control in your CSS classes, you can set your custom css class for the element using this property. It&apos;s better to use unique class name for each control.</li>
+<li><h6 id="icon">icon</h6>
+To have a great UI, Portia Workflow uses Font-Awesome library to present elements icon. You can set your favorite icon from Font-Awesome to your control.</li>
+<li><h6 id="name">name</h6>
+It indicates the name of the control. Portia Workflow uses this name in internal processes to find your custom controls so it needs to be unique for each item in each group.</li>
+<li><h6 id="title">title</h6>
+You can set presented name of your control to <em>title</em> property. It will be used in UI.</li>
+</ul>
+</li>
+<li><h5 id="methods">Methods</h5>
+<ul>
+<li><h6 id="constructor">constructor</h6>
+<p>The <em>constructor</em> method is the most important method that should be implemented for each control. Inside this method you should request a new skeleton by calling the <em>getElementStructure</em> method of the dwsigner element. This method accepts the <em>name</em> of the current element. The <em>getElementStructure</em> returns a DOM element with required Header, Content and other basic functionalities such as Drag and Drop. To add your required inputs and UI elements, you have to query the content element from the returned skeleton like below:</p>
+<pre><code class="lang-js"><span class="hljs-keyword">var</span> element = diagram.getElementStructure(<span class="hljs-string">&apos;sum&apos;</span>);
+<span class="hljs-keyword">var</span> body = element.find(<span class="hljs-string">&apos;.panel-body&apos;</span>).first();
+</code></pre>
+<p>After initializing the UI, you should return the element to be used in designer and engine.</p>
+</li>
+<li><h6 id="validate">validate</h6>
+<p>This method helps you to validate the values of the input elements inside the control. For example, if you added an <em>option</em> element to body of the control in <em>constructor</em> method and you need to force the workflow designer to select one of it&apos;s options, you can check it inside this method. <em>validate</em> method has an input parameter that you can access the element body using this. After validating values, return array of error messages that you detected.</p>
+<pre><code class="lang-js">validate: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">node</span>)</span>{
+                <span class="hljs-keyword">var</span> dom = $(node);                    
+                <span class="hljs-keyword">var</span> errorList = [];
+                <span class="hljs-keyword">var</span> message = $(dom.find(<span class="hljs-string">&apos;input[type=&quot;text&quot;]&apos;</span>).first()).val();
+                <span class="hljs-keyword">if</span>(message === <span class="hljs-literal">null</span> || message.trim() === <span class="hljs-string">&apos;&apos;</span>)
+                    errorList.push(<span class="hljs-string">&apos;Please enter message&apos;</span>);
+                <span class="hljs-keyword">return</span> errorList;
+            }
+</code></pre>
+</li>
+</ul>
 </li>
 <li><h4 id="drawgridlines">drawGridLines</h4>
 <p>  Default: true<br>If you need to have grid lines in background of your designer, you can set it to <em>true</em>(or leave it as is), otherwise set it <em>false</em>.</p>
@@ -343,7 +331,7 @@ while
                 </a>
                 
                 
-                <a href="properties.html#customElements" class="navigation navigation-next " aria-label="Next page: customElements">
+                <a href="../engine.html" class="navigation navigation-next " aria-label="Next page: Engine">
                     <i class="fa fa-angle-right"></i>
                 </a>
                 
@@ -354,7 +342,7 @@ while
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Properties","level":"1.2.2","depth":2,"next":{"title":"customElements","level":"1.2.2.1","depth":3,"anchor":"#customElements","path":"docs/designer/properties.md","ref":"docs/designer/properties.md#customElements","articles":[]},"previous":{"title":"Setup","level":"1.2.1","depth":2,"path":"docs/designer/setup.md","ref":"docs/designer/setup.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"docs/designer/properties.md","mtime":"2018-10-03T05:57:49.405Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2018-10-03T05:58:05.098Z"},"basePath":"../..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Properties","level":"1.2.2","depth":2,"next":{"title":"Engine","level":"1.3","depth":1,"path":"docs/engine.md","ref":"docs/engine.md","articles":[]},"previous":{"title":"Setup","level":"1.2.1","depth":2,"path":"docs/designer/setup.md","ref":"docs/designer/setup.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"docs/designer/properties.md","mtime":"2018-10-03T09:11:59.821Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2018-10-03T09:12:37.456Z"},"basePath":"../..","book":{"language":""}});
         });
     </script>
 </div>
