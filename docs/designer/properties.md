@@ -1,9 +1,6 @@
 ## Properties
-### List of properties
+Here is an overview of setting up the Portia Workflow
 
-- #### customElements
-    Default: null  
-  You can pass your custom activities to workflow. It holds a list of JSON objects that in the first level of this, it contains groups of items. Each group contains a set of controls that can be used in designer and engine.
   ``` js
   var diagram = $('<div></div>').seqDesigner(
   {
@@ -49,6 +46,12 @@
       }
   });
   ```
+     
+### List of properties
+
+- #### customElements
+    Default: null  
+  You can pass your custom activities to workflow. It holds a list of JSON objects that in the first level of this, it contains groups of items. Each group contains a set of controls that can be used in designer and engine.
   At the first level of this structure, we should declare a group and set it's *title*. Each group has one/many controls that we can set it using *controls* property. This property accepts a list of control declarations. Required properties for each control are as follows:
 - ##### Properties
   - ###### class

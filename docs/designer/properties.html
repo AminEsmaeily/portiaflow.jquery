@@ -206,53 +206,55 @@
                                 <section class="normal markdown-section">
                                 
                                 <h2 id="properties">Properties</h2>
+<p>Here is an overview of setting up the Portia Workflow</p>
+<pre><code class="lang-js">  var diagram = $(&apos;&lt;div&gt;&lt;/div&gt;&apos;).seqDesigner(
+  {
+      hostControl : &apos;sequence&apos;,
+      drawGridLines : true,
+      customElements : [
+          {
+              title: &apos;Math Elements&apos;,
+              controls:[
+                  {
+                      name: &apos;sum&apos;,
+                      title: &apos;Sum&apos;,
+                      icon: &apos;fa-plus&apos;,
+                      class: &apos;element-sum&apos;,
+                      constructor: function(){
+                          var element = diagram.getElementStructure(&apos;sum&apos;);
+                          ...
+                          return element;
+                      },
+                      validate: function(node){
+                          var dom = $(node);
+                          var errorList = [];
+                          ...
+                          return errorList;
+                      }
+                  }
+              ]
+          },
+          {
+              title: &apos;Other Group&apos;,
+              controls:[
+                ...
+              ]
+          },
+          ...
+      ],
+      modelChanged : function(){
+          //$(&quot;#jsonStructure&quot;).jJsonViewer(diagram.getJSON());
+      },
+      selectedNodeChanged : function(item){
+          //$(&quot;#varTableContainer&quot;).empty();
+          //$(&quot;#varTableContainer&quot;).append(getVariablesTable(item));
+      }
+  });
+</code></pre>
 <h3 id="list-of-properties">List of properties</h3>
 <ul>
 <li><h4 id="customelements">customElements</h4>
-  Default: null<br>You can pass your custom activities to workflow. It holds a list of JSON objects that in the first level of this, it contains groups of items. Each group contains a set of controls that can be used in designer and engine.<pre><code class="lang-js">var diagram = $(&apos;&lt;div&gt;&lt;/div&gt;&apos;).seqDesigner(
-{
-    hostControl : &apos;sequence&apos;,
-    drawGridLines : true,
-    customElements : [
-        {
-            title: &apos;Math Elements&apos;,
-            controls:[
-                {
-                    name: &apos;sum&apos;,
-                    title: &apos;Sum&apos;,
-                    icon: &apos;fa-plus&apos;,
-                    class: &apos;element-sum&apos;,
-                    constructor: function(){
-                        var element = diagram.getElementStructure(&apos;sum&apos;);
-                        ...
-                        return element;
-                    },
-                    validate: function(node){
-                        var dom = $(node);
-                        var errorList = [];
-                        ...
-                        return errorList;
-                    }
-                }
-            ]
-        },
-        {
-            title: &apos;Other Group&apos;,
-            controls:[
-              ...
-            ]
-        },
-        ...
-    ],
-    modelChanged : function(){
-        //$(&quot;#jsonStructure&quot;).jJsonViewer(diagram.getJSON());
-    },
-    selectedNodeChanged : function(item){
-        //$(&quot;#varTableContainer&quot;).empty();
-        //$(&quot;#varTableContainer&quot;).append(getVariablesTable(item));
-    }
-});
-</code></pre>
+  Default: null<br>You can pass your custom activities to workflow. It holds a list of JSON objects that in the first level of this, it contains groups of items. Each group contains a set of controls that can be used in designer and engine.
 At the first level of this structure, we should declare a group and set it&apos;s <em>title</em>. Each group has one/many controls that we can set it using <em>controls</em> property. This property accepts a list of control declarations. Required properties for each control are as follows:</li>
 <li><h5 id="properties">Properties</h5>
 <ul>
@@ -342,7 +344,7 @@ while
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Properties","level":"1.2.2","depth":2,"next":{"title":"Engine","level":"1.3","depth":1,"path":"docs/engine.md","ref":"docs/engine.md","articles":[]},"previous":{"title":"Setup","level":"1.2.1","depth":2,"path":"docs/designer/setup.md","ref":"docs/designer/setup.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"docs/designer/properties.md","mtime":"2018-10-03T09:11:59.821Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2018-10-03T09:12:37.456Z"},"basePath":"../..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Properties","level":"1.2.2","depth":2,"next":{"title":"Engine","level":"1.3","depth":1,"path":"docs/engine.md","ref":"docs/engine.md","articles":[]},"previous":{"title":"Setup","level":"1.2.1","depth":2,"path":"docs/designer/setup.md","ref":"docs/designer/setup.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"docs/designer/properties.md","mtime":"2018-10-03T09:17:48.915Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2018-10-03T10:22:21.947Z"},"basePath":"../..","book":{"language":""}});
         });
     </script>
 </div>
