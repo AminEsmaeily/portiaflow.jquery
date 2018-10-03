@@ -4,7 +4,7 @@
 - #### customElements
     Default: null  
   You can pass your custom activities to workflow. It holds a list of JSON objects that in the first level of this, it contains groups of items. Each group contains a set of controls that can be used in designer and engine.
-  ``` html
+  ``` js
   var diagram = $('<div></div>').seqDesigner(
   {
       hostControl : 'sequence',

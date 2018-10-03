@@ -145,10 +145,10 @@
     
         <li class="chapter " data-level="1.2.2.1" data-path="properties.html">
             
-                <a href="properties.html#drawGridLines">
+                <a href="properties.html#customElements">
             
                     
-                    drawGridLines
+                    customElements
             
                 </a>
             
@@ -158,10 +158,10 @@
     
         <li class="chapter " data-level="1.2.2.2" data-path="properties.html">
             
-                <a href="properties.html#elements">
+                <a href="properties.html#drawGridLines">
             
                     
-                    elements
+                    drawGridLines
             
                 </a>
             
@@ -253,18 +253,59 @@
                                 <h2 id="properties">Properties</h2>
 <h3 id="list-of-properties">List of properties</h3>
 <ul>
-<li><a href="#drawGridLines">drawGridLines</a></li>
-<li><a href="#elements">elements</a></li>
-<li><p><a href="#hostElement">hostElement</a></p>
+<li><h4 id="customelements">customElements</h4>
+<p>  Default: null<br>You can pass your custom activities to workflow. It holds a list of JSON objects that in the first level of this, it contains groups of items. Each group contains a set of controls that can be used in designer and engine.</p>
+<pre><code class="lang-js">var diagram = $(&apos;&lt;div&gt;&lt;/div&gt;&apos;).seqDesigner(
+{
+    hostControl : &apos;sequence&apos;,
+    drawGridLines : true,
+    customElements : [
+        {
+            title: &apos;Math Elements&apos;,
+            controls:[
+                {
+                    name: &apos;sum&apos;,
+                    title: &apos;Sum&apos;,
+                    icon: &apos;fa-plus&apos;,
+                    class: &apos;element-sum&apos;,
+                    constructor: function(){
+                        var element = diagram.getElementStructure(&apos;sum&apos;);
+                        ...
+                        return element;
+                    },
+                    validate: function(node){
+                        var dom = $(node);
+                        var errorList = [];
+                        ...
+                        return errorList;
+                    }
+                }
+            ]
+        },
+        {
+            title: &apos;Other Group&apos;,
+            controls:[
+              ...
+            ]
+        },
+        ...
+    ],
+    modelChanged : function(){
+        //$(&quot;#jsonStructure&quot;).jJsonViewer(diagram.getJSON());
+    },
+    selectedNodeChanged : function(item){
+        //$(&quot;#varTableContainer&quot;).empty();
+        //$(&quot;#varTableContainer&quot;).append(getVariablesTable(item));
+    }
+});
+</code></pre>
+<p>At the first level of this structure, we should declare a group and set it&apos;s <em>title</em>. Each group has one/many controls that we can pass them to it using <em>controls</em> property. This property accepts a list of control declarations.</p>
 </li>
 <li><h4 id="drawgridlines">drawGridLines</h4>
-<p>  default: true<br>If you need to have grid lines in background of your designer, you can set it to <em>true</em>(or leave it as is), otherwise set it <em>false</em>.</p>
-</li>
-<li><h4 id="elements">elements</h4>
-<p>  This property containes all of the main and custom activities.</p>
+<p>  Default: true<br>If you need to have grid lines in background of your designer, you can set it to <em>true</em>(or leave it as is), otherwise set it <em>false</em>.</p>
 </li>
 <li><h4 id="hostelement">hostElement</h4>
-<p>Default: sequence<br>This property indicates the main element hosted in the designer. The hosted element cannot be removed in desinger.<br>Values: </p>
+<p>Default: sequence<br>This property indicates the main element hosted in the designer. The hosted element cannot be removed in desinger.<br>Available Values: </p>
 <pre><code>sequence
 if
 while
@@ -302,7 +343,7 @@ while
                 </a>
                 
                 
-                <a href="properties.html#drawGridLines" class="navigation navigation-next " aria-label="Next page: drawGridLines">
+                <a href="properties.html#customElements" class="navigation navigation-next " aria-label="Next page: customElements">
                     <i class="fa fa-angle-right"></i>
                 </a>
                 
@@ -313,7 +354,7 @@ while
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Properties","level":"1.2.2","depth":2,"next":{"title":"drawGridLines","level":"1.2.2.1","depth":3,"anchor":"#drawGridLines","path":"docs/designer/properties.md","ref":"docs/designer/properties.md#drawGridLines","articles":[]},"previous":{"title":"Setup","level":"1.2.1","depth":2,"path":"docs/designer/setup.md","ref":"docs/designer/setup.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"docs/designer/properties.md","mtime":"2018-10-01T10:01:55.383Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2018-10-01T12:15:56.242Z"},"basePath":"../..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Properties","level":"1.2.2","depth":2,"next":{"title":"customElements","level":"1.2.2.1","depth":3,"anchor":"#customElements","path":"docs/designer/properties.md","ref":"docs/designer/properties.md#customElements","articles":[]},"previous":{"title":"Setup","level":"1.2.1","depth":2,"path":"docs/designer/setup.md","ref":"docs/designer/setup.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"docs/designer/properties.md","mtime":"2018-10-03T05:57:49.405Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2018-10-03T05:58:05.098Z"},"basePath":"../..","book":{"language":""}});
         });
     </script>
 </div>
