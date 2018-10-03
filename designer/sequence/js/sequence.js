@@ -37,7 +37,7 @@
             var settings = $.fn.extend({
                 hostElement : 'sequence',
                 drawGridLines : true,
-                customElements : [],
+                customElements : [], 
                 modelChanged : null,
                 selectedNodeChanged : null
             }, options || {});
@@ -53,7 +53,7 @@
                             icon: 'fa-sitemap',
                             class: 'element-sequence',
                             constructor: function(isHost){
-                                var element = getContainerElement('sequence', isHost);
+                                var element = getActivityElement('sequence', isHost);
                 
                                 updateSequenceContent(element);
                                 return element;
@@ -83,6 +83,28 @@
 
                                 setErrorIcon(dom, errorList);
                                 return errorList;
+                            },
+                            getJSON: function(node){
+                                var dom = $(node);
+                                var info = getElement($(dom).attr('name'));
+                                var children = $(dom.find('.panel-body').first()).children('.sequence-control');
+
+                                var res = {
+                                    name: info.name,
+                                    id: $(node).attr('id'),
+                                    children: []
+                                };
+
+                                $.each(children, function(){
+                                    var dom = $(this);
+                                    var name = dom.attr('name');
+                                    var element = getElement(name);
+                                    if(!$.isFunction(element.getJSON))                                    
+                                        return;
+                                    res.children.push(element.getJSON(dom));
+                                });
+
+                                return res;
                             }
                         },
                         {
@@ -91,7 +113,7 @@
                             icon: 'fa-exchange',
                             class: 'element-if',
                             constructor: function(isHost){
-                                var element = getContainerElement('if', isHost);
+                                var element = getActivityElement('if', isHost);
                 
                                 var body = $(element.find('.panel-body').first());
                                 var conditionRow = $('<div></div>')
@@ -186,7 +208,7 @@
                             icon: 'fa-refresh',
                             class: 'element-while',
                             constructor: function(isHost){
-                                var element = getContainerElement('while', isHost);
+                                var element = getActivityElement('while', isHost);
                 
                                 var body = $(element.find('.panel-body').first());
                 
@@ -252,7 +274,7 @@
                             class: 'element-assign',
                             constructor: function(isHost){
                                 var info = getElement('assign');
-                                var element = getContainerElement(info.name, isHost);
+                                var element = getActivityElement(info.name, isHost);
                 
                                 var body = $(element.find('.panel-body').first());
                 
@@ -352,7 +374,7 @@
             }
 
             // This method constructs the main skleton of the element
-            var getContainerElement = function(controlName, isHost = false){
+            var getActivityElement = function(controlName, isHost = false){
                 if(controlName === undefined)
                     throw 'Control name is undefined.';
 
@@ -361,7 +383,7 @@
                 if(controlInfo === null)
                     throw 'Control with name ' + controlName + ' not found.';
 
-                var id = 'content' + newUniqId();
+                var id = 'activity' + newUniqId();
                 var element = $('<div></div>')
                     .attr('id', id)
                     .addClass('sequence-control')
@@ -377,6 +399,8 @@
                     $('.bg-info').removeClass('bg-info');
                     $(this).addClass('bg-info');
                     $(this).removeClass('bg-default');
+                    if($.isFunction(settings.selectedNodeChanged))
+                        settings.selectedNodeChanged($(this));
                 });
 
                 var header = $('<div></div>')
@@ -613,6 +637,9 @@
 
                 if($.isFunction(info.validate))
                     info.validate(firstChild);
+                    
+                if($.isFunction(settings.modelChanged))
+                    settings.modelChanged();
             }
 
             // Public functions
@@ -627,7 +654,21 @@
             }
 
             this.getElementStructure = function(elementName){
-                return getContainerElement(elementName);
+                return getActivityElement(elementName);
+            }
+
+            this.getJSON = function(){
+                var root = $(designer).children('.sequence-control');
+                if(root == null)
+                    return;
+                var info = getElement(root.attr('name'));
+                if(info == null)
+                    return;
+
+                if($.isFunction(info.getJSON))
+                    return info.getJSON(root);
+
+                return {};
             }
 
             var designer = init(this);

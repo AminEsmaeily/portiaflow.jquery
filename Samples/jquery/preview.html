@@ -10,6 +10,7 @@
         <link rel="stylesheet" href="node_modules/golden-layout/src/css/goldenlayout-base.css">
         <link rel="stylesheet" href="node_modules/golden-layout/src/css/goldenlayout-translucent-theme.css">
         <link rel="stylesheet" href="css/site.css">
+        <link rel="stylesheet" href="node_modules/jquery.beautify/beautify-json.css">
     </header>
     <body>
     </body>
@@ -26,6 +27,7 @@
     <script src="../../designer/sequence/js/sequence.js"></script>
 
     <script src="node_modules/golden-layout/dist/goldenlayout.min.js"></script>
+    <script src="node_modules/jquery.beautify/jquery.beautify-json.js"></script>
 
     <script>
         var seqDesigner;
@@ -101,6 +103,7 @@
                                     },
                                     validate: function(node){
                                         var dom = $(node);
+                                        
                                         var errorList = [];
                                         return errorList;
                                     }
@@ -109,7 +112,13 @@
                         }
                     ],
                     modelChanged : function(){
-                        //$("#jsonStructure").jJsonViewer(diagram.getJSON());
+                        var json = diagram.getJSON();
+                        $('#outputJSON').text(JSON.stringify(json));
+                        $('#outputJSON').beautifyJSON({
+                            collapsible:true,
+                            color:true,
+                            hoverable: false,
+                        });
                     },
                     selectedNodeChanged : function(item){
                         //$("#varTableContainer").empty();
@@ -127,8 +136,15 @@
                     container.getElement().html(getToolbox(diagram.getElements()));
                 }
                 else if(componentState.contentType === "output"){
-                    //var outputPanel = getOutputPanel();
-                    //container.getElement().html(outputPanel);
+                    var outputPanel = getOutputPanel();
+                    container.getElement().html(outputPanel);
+                    var json = diagram.getJSON();
+                    $(outputPanel.find('#outputJSON')).text(JSON.stringify(json, null, 4));
+                    $(outputPanel.find('#outputJSON')).beautifyJSON({
+                        collapsible:true,
+                        color:true,
+                        hoverable: false,
+                    });
                 }
                 else if(componentState.contentType === "variables"){
                     //var outputPanel  = getVariablesPanel();
@@ -170,6 +186,21 @@
             });
 
             return container.css('padding', '5');
+        }
+
+        var getOutputPanel = function(){
+            var container = $('<div></div>')
+                .css('height', '100%')
+                .css('width', '100%')
+                .css('overflow', 'auto');
+
+            $('<p></p>')
+                .attr('id', 'outputJSON')
+                .css('padding', '10px')
+                .css('background-color', '#333')
+                .appendTo(container);
+
+            return container;
         }
     </script>
 </html>
