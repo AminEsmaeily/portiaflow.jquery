@@ -123,6 +123,43 @@
                     selectedNodeChanged : function(item){
                         //$("#varTableContainer").empty();
                         //$("#varTableContainer").append(getVariablesTable(item));
+                    },
+                    onLog : function(log){
+                        var loggerUl = $('#loggerUl');
+                        if(loggerUl === null || loggerUl.length === 0)
+                            return;
+                        var getPaddedComp = function(comp) {
+                            return ((parseInt(comp) < 10) ? ('0' + comp) : comp)
+                        }
+
+                        var li = $('<li></li>')
+                            .appendTo(loggerUl);
+                        if(item.level === 'error')
+                            li.addClass("text-danger");
+                        else
+                            li.addClass(".text-light");
+
+                        $('<i></i>')
+                            .addClass('fa')
+                            .addClass(item.level === 'error' ? 'fa-warning' : 'fa-info')
+                            .css('width', '15px')
+                            .appendTo(li);
+
+                        $('<span></span>')
+                            .css('margin-left', '10px')
+                            .css('width', '150px')
+                            .append(log.eventDate.getFullYear() + "/" + 
+                                getPaddedComp(log.eventDate.getMonth()) + "/" + 
+                                getPaddedComp(log.eventDate.getDate()) + " " +
+                                log.eventDate.getHours() + ":" + 
+                                getPaddedComp(log.eventDate.getMinutes()) + ":" +
+                                getPaddedComp(log.eventDate.getSeconds()))
+                            .appendTo(li);
+
+                        $('<span></span>')
+                            .append(log.message)
+                            .css('margin-left', '10px')
+                            .appendTo(li);
                     }
                 });
 
@@ -149,6 +186,20 @@
                 else if(componentState.contentType === "variables"){
                     //var outputPanel  = getVariablesPanel();
                     //container.getElement().html(outputPanel);
+                }
+                else if(componentState.contentType === "log"){
+                    var parent = $('<div></div>')
+                        .css('height', '100%')
+                        .css('width', '100%')
+                        .css('overflow', 'auto');
+                    var loggerUl = $('<ul></ul>')
+                        .attr('id', 'loggerUl')
+                        .css("width", "100%")
+                        .css('padding', '10px')
+                        .css('background-color', '#333')
+                        .appendTo(parent);
+
+                    container.getElement().html(parent);
                 }
             });
             myLayout.init();

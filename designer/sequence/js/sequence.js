@@ -37,9 +37,11 @@
             var settings = $.fn.extend({
                 hostElement : 'sequence',
                 drawGridLines : true,
-                customElements : [], 
+                customElements : [],
+                showLog : true,
                 modelChanged : null,
-                selectedNodeChanged : null
+                selectedNodeChanged : null,
+                onLog : null
             }, options || {});
 
             
@@ -92,16 +94,18 @@
                                 var res = {
                                     name: info.name,
                                     id: $(node).attr('id'),
+                                    title: info.title,
+                                    class: info.class,
                                     children: []
                                 };
 
                                 $.each(children, function(){
                                     var dom = $(this);
                                     var name = dom.attr('name');
-                                    var element = getElement(name);
-                                    if(!$.isFunction(element.getJSON))                                    
+                                    var info = getElement(name);
+                                    if(!$.isFunction(info.getJSON))                                    
                                         return;
-                                    res.children.push(element.getJSON(dom));
+                                    res.children.push(info.getJSON(dom));
                                 });
 
                                 return res;
@@ -200,6 +204,19 @@
 
                                 setErrorIcon(dom, errorList);
                                 return errorList;
+                            },
+                            getJSON: function(){
+                                var dom = $(node);
+                                var info = getElement($(dom).attr('name'));
+
+                                var res = {
+                                    name: info.name,
+                                    id: $(node).attr('id'),
+                                    title: info.title,
+                                    class: info.class
+                                };
+
+                                return res;
                             }
                         },
                         {
@@ -331,6 +348,7 @@
 
             // Private methods
             var init = function(element){
+                log("Initializing designer");
                 $(element).addClass('design-panel');
 
                 var hostItem = getElement(settings.hostElement);
@@ -370,6 +388,18 @@
                         if(groups[i].controls[j].name === elementName)
                             return groups[i].controls[j];
                     }
+                }
+            }
+
+            var log = function(message, level){
+                if(settings.showLog && $.isFunction(settings.onLog)){
+                    settings.onLog(
+                        {
+                            dateTime: new Date(),
+                            level: level === undefined || level === null ? 'Information' : level,
+                            message: message
+                        }
+                    );
                 }
             }
 
