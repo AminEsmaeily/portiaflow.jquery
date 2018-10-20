@@ -277,6 +277,35 @@ You can set presented name of your control to <code>title</code> property. It wi
 </code></pre>
 <p>After initializing the UI, you should return the element to be used in designer and engine.</p>
 </li>
+<li><h6 id="execute">execute</h6>
+<p>Inside this method, we can declare behavior of the activity. The Portia Workflow engine uses thid method to execute the activity and submit it&apos;s effects inside the flow. Like other methods, this method has an input argument to give access to the desired activity. By using this argument, we can access all inputs and their values inside the activity, Then perform the job that we want.<br><strong>It&apos;s one of the important methods of the Portia Workflow, so create this method with more accuracy.</strong><br>Following is an example of the execute method. Inside this method we retrieve the value of the user entered message inside the input, then write it into the browser console.</p>
+<pre><code class="lang-js">execute: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">node</span>)</span>{
+            <span class="hljs-keyword">var</span> dom = $(node);
+            <span class="hljs-keyword">var</span> message = $(dom.find(<span class="hljs-string">&apos;input.form-control&apos;</span>)[<span class="hljs-number">0</span>]).val();
+
+            <span class="hljs-keyword">var</span> command = <span class="hljs-string">&apos;console.log(&quot;&apos;</span>+message+<span class="hljs-string">&apos;&quot;)&apos;</span>;
+            $.<span class="hljs-built_in">eval</span>(command);
+            <span class="hljs-keyword">return</span> res;
+        }
+</code></pre>
+</li>
+<li><h6 id="getjson">getJSON</h6>
+<p>Portia workflow stores and loads data and structure using JSON format. So we should provide a business to return JSON format of the designed activity. In this case, we have to fetch all of the elements and their values inside the element. This method has an input argument that points to the desired activity. By using this argument, we can access all of needed controls and values. After building and filling up the JSON decleration of the activity, we should return it to caller. The following example demonstrates the JSON creation of the <code>Write To Console</code> activity:</p>
+<pre><code class="lang-js">getJSON: function(node){
+            var dom = $(node);
+            var info = getElement($(dom).attr(&apos;name&apos;));
+            var res = {
+                name: info.name,
+                id: dom.attr(&apos;id&apos;),
+                title: info.title,
+                class: info.class
+            };
+            var columns = dom.children(&apos;.panel-body&apos;).children(&apos;.sequence-row&apos;).children(&apos;.column&apos;);
+            res.message = $(columns[0]).children(&apos;input.form-control&apos;).val();
+            return res;
+        }
+</code></pre>
+</li>
 <li><h6 id="validate">validate</h6>
 <p>This method helps you to validate the values of the input elements inside the control. For example, if you added an <code>&lt;option&gt;&lt;/option&gt;</code> element to body of the control in <code>constructor</code> method and you need to force the workflow designer to select one of it&apos;s options, you can check it inside this method. <code>validate</code> method has an input parameter that you can access the element body using this. After validating values, return array of error messages that you detected.</p>
 <pre><code class="lang-js">validate: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">node</span>)</span>{
@@ -344,7 +373,7 @@ You can set presented name of your control to <code>title</code> property. It wi
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Properties","level":"1.2.2","depth":2,"next":{"title":"Engine","level":"1.3","depth":1,"path":"docs/engine.md","ref":"docs/engine.md","articles":[]},"previous":{"title":"Setup","level":"1.2.1","depth":2,"path":"docs/designer/setup.md","ref":"docs/designer/setup.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"docs/designer/properties.md","mtime":"2018-10-03T10:36:40.262Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2018-10-03T10:36:47.808Z"},"basePath":"../..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Properties","level":"1.2.2","depth":2,"next":{"title":"Engine","level":"1.3","depth":1,"path":"docs/engine.md","ref":"docs/engine.md","articles":[]},"previous":{"title":"Setup","level":"1.2.1","depth":2,"path":"docs/designer/setup.md","ref":"docs/designer/setup.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"docs/designer/properties.md","mtime":"2018-10-20T18:36:18.054Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2018-10-20T18:36:39.041Z"},"basePath":"../..","book":{"language":""}});
         });
     </script>
 </div>

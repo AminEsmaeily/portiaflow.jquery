@@ -486,7 +486,6 @@
                                 var info = getElement($(dom).attr('name'));
                                 log(info.name + '(' + dom.attr('id') + ') => Executing...');
 
-                                var dom = $(node);
                                 var columns = dom.children('.panel-body').children('.sequence-row').children('.column');
                                 var assignee = $(columns[0]).children('select').val();
                                 var value = $(columns[1]).children('input.form-control').val();
@@ -566,9 +565,8 @@
                                 var info = getElement($(dom).attr('name'));
                                 log(info.name + '(' + dom.attr('id') + ') => Executing...');
 
-                                var dom = $(node);
                                 var columns = dom.children('.panel-body').children('.sequence-row').children('.column');
-                                var message = $(columns[0]).children('input.form-control').val();
+                                var message = $(dom.find('input.form-control')[0]).val();
 
                                 var command = 'console.log("'+message+'")';
                                 $.eval(command);

@@ -71,6 +71,39 @@ Here is an overview of setting up the Portia Workflow
     ```
     After initializing the UI, you should return the element to be used in designer and engine.
 
+  - ###### execute
+    Inside this method, we can declare behavior of the activity. The Portia Workflow engine uses thid method to execute the activity and submit it's effects inside the flow. Like other methods, this method has an input argument to give access to the desired activity. By using this argument, we can access all inputs and their values inside the activity, Then perform the job that we want.  
+    **It's one of the important methods of the Portia Workflow, so create this method with more accuracy.**  
+    Following is an example of the execute method. Inside this method we retrieve the value of the user entered message inside the input, then write it into the browser console.
+    ``` js  
+    execute: function(node){
+                var dom = $(node);
+                var message = $(dom.find('input.form-control')[0]).val();
+
+                var command = 'console.log("'+message+'")';
+                $.eval(command);
+                return res;
+            }
+    ```
+
+  - ###### getJSON
+    Portia workflow stores and loads data and structure using JSON format. So we should provide a business to return JSON format of the designed activity. In this case, we have to fetch all of the elements and their values inside the element. This method has an input argument that points to the desired activity. By using this argument, we can access all of needed controls and values. After building and filling up the JSON decleration of the activity, we should return it to caller. The following example demonstrates the JSON creation of the `Write To Console` activity:
+    ``` js  
+    getJSON: function(node){
+                var dom = $(node);
+                var info = getElement($(dom).attr('name'));
+                var res = {
+                    name: info.name,
+                    id: dom.attr('id'),
+                    title: info.title,
+                    class: info.class
+                };
+                var columns = dom.children('.panel-body').children('.sequence-row').children('.column');
+                res.message = $(columns[0]).children('input.form-control').val();
+                return res;
+            }
+    ```
+
   - ###### validate
     This method helps you to validate the values of the input elements inside the control. For example, if you added an `<option></option>` element to body of the control in `constructor` method and you need to force the workflow designer to select one of it's options, you can check it inside this method. `validate` method has an input parameter that you can access the element body using this. After validating values, return array of error messages that you detected.
     ``` js
