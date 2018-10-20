@@ -44,6 +44,11 @@
                 onLog : null
             }, options || {});
 
+            var globalVariables = [
+                'variable1',
+                'variable2'
+            ];
+
             
             var mainElements = 
                 {
@@ -205,7 +210,7 @@
                                 setErrorIcon(dom, errorList);
                                 return errorList;
                             },
-                            getJSON: function(){
+                            getJSON: function(node){
                                 var dom = $(node);
                                 var info = getElement($(dom).attr('name'));
 
@@ -216,7 +221,87 @@
                                     class: info.class
                                 };
 
+                                var rows = dom.children('.panel-body').children('.sequence-row');
+                                res.condition = $(rows[0]).children('.condition-input').val();
+                                
+                                var ifColumn = $(rows[1]).children('.column').children('.container-if');
+                                var elseColumn = $(rows[1]).children('.column').children('.container-else');
+
+                                var ifDom = $(ifColumn.children('.sequence-control'));
+                                if(ifDom.length === 0)
+                                    res.if = {};
+                                else{
+                                    var name = ifDom.attr('name');
+                                    var info = getElement(name);
+                                    if($.isFunction(info.getJSON))                                    
+                                        res.if = info.getJSON(ifDom);
+                                    else
+                                        res.if = {};
+                                }
+
+                                var elseDom = $(elseColumn.children('.sequence-control'));
+                                if(elseDom.length === 0)
+                                    res.else = {};
+                                else{
+                                    var name = elseDom.attr('name');
+                                    var info = getElement(name);
+                                    if($.isFunction(info.getJSON))
+                                        res.else = info.getJSON(elseDom);
+                                    else
+                                        res.else = {};
+                                }
+
                                 return res;
+                            },
+                            execute: function(node){
+                                var dom = $(node);
+                                var info = getElement($(dom).attr('name'));
+                                log(info.name + '(' + dom.attr('id') + ') => Executing...');
+
+                                var rows = dom.children('.panel-body').children('.sequence-row');
+                                var condition = $(rows[0]).children('.condition-input').val();
+                                condition = condition.replace(':', ' globalVariables.');
+                                var conditionResult;
+                                try{
+                                    conditionResult = $.eval(condition);
+                                }
+                                catch(ex){
+                                    log(info.name + '(' + dom.attr('id') + ') => Error in processing condition.\n' + ex.message, 'Error');
+                                    throw new Error(info.name + '(' + dom.attr('id') + ') => Error in processing condition.\n' + ex.message);
+                                }
+
+                                if(conditionResult){
+                                    var ifColumn = $(rows[1]).children('.column').children('.container-if');
+                                    var ifDom = $(ifColumn.children('.sequence-control'));
+                                    if(ifDom.length === 0)
+                                        log(info.name + '(' + dom.attr('id') + ') => No action to execute.');
+                                    else{
+                                        var name = ifDom.attr('name');
+                                        var info = getElement(name);
+                                        if($.isFunction(info.execute)) {
+                                            info.execute(ifDom);
+                                            log(info.name + '(' + dom.attr('id') + ') => Executed successfully');
+                                        }
+                                        else
+                                            log(name + '(' + ifDom.attr('id') + ') => Execute method not implemented.');
+                                    }
+                                }
+                                else{
+                                    var elseColumn = $(rows[1]).children('.column').children('.container-else');
+                                    var elseDom = $(elseColumn.children('.sequence-control'));
+                                    if(elseDom.length === 0)
+                                        log(info.name + '(' + dom.attr('id') + ') => No action to execute.');
+                                    else{
+                                        var name = elseDom.attr('name');
+                                        var info = getElement(name);
+                                        if($.isFunction(info.execute)){
+                                            info.execute(elseDom);
+                                            log(info.name + '(' + dom.attr('id') + ') => Executed successfully');
+                                        }
+                                        else
+                                            log(name + '(' + ifDom.attr('id') + ') => Execute method not implemented.');
+                                    }
+                                }
                             }
                         },
                         {
@@ -282,6 +367,34 @@
 
                                 setErrorIcon(dom, errorList);
                                 return errorList;
+                            },
+                            getJSON: function(node){
+                                var dom = $(node);
+                                var info = getElement($(dom).attr('name'));
+
+                                var res = {
+                                    name: info.name,
+                                    id: $(node).attr('id'),
+                                    title: info.title,
+                                    class: info.class
+                                };
+
+                                var rows = dom.children('.panel-body').children('.sequence-row');
+                                res.condition = $(rows[0]).children('.condition-input').val();
+
+                                var container = $($(rows[1]).children('.container-div').children('.sequence-control'));
+                                if(container.length === 0)
+                                    res.loop = {};
+                                else{
+                                    var name = container.attr('name');
+                                    var info = getElement(name);
+                                    if($.isFunction(info.getJSON))
+                                        res.else = info.getJSON(container);
+                                    else
+                                        res.loop = {};
+                                }
+
+                                return res;
                             }
                         },
                         {
@@ -306,6 +419,15 @@
                                     .append($('<select></select>')
                                             .addClass('form-control'))
                                     .appendTo(casesRow);
+
+                                var defaultOption = $('<option disabled selected value>select a variable</option>');
+                                variableColumn.children('select').append(defaultOption);
+                                $.each(globalVariables, function(index, item){
+                                    var option = $('<option></option>')
+                                        .attr('value', item)
+                                        .append(item);
+                                    variableColumn.children('select').append(option);
+                                });
 
                                 variableColumn.children('select').on('change', function(){
                                     validateFlow();
@@ -341,6 +463,117 @@
 
                                 setErrorIcon(dom, errorList);
                                 return errorList;
+                            },
+                            getJSON: function(node){
+                                var dom = $(node);
+                                var info = getElement($(dom).attr('name'));
+
+                                var res = {
+                                    name: info.name,
+                                    id: dom.attr('id'),
+                                    title: info.title,
+                                    class: info.class
+                                };
+
+                                var columns = dom.children('.panel-body').children('.sequence-row').children('.column');
+                                res.variable = $(columns[0]).children('select').val();
+                                res.value = $(columns[1]).children('input.form-control').val();
+
+                                return res;
+                            },
+                            execute: function(node){
+                                var dom = $(node);
+                                var info = getElement($(dom).attr('name'));
+                                log(info.name + '(' + dom.attr('id') + ') => Executing...');
+
+                                var dom = $(node);
+                                var columns = dom.children('.panel-body').children('.sequence-row').children('.column');
+                                var assignee = $(columns[0]).children('select').val();
+                                var value = $(columns[1]).children('input.form-control').val();
+
+                                if(assignee === null){
+                                    log(info.name + '(' + dom.attr('id') + ') => Variable not set.', 'Error');
+                                    throw new Error(info.name + '(' + dom.attr('id') + ') => Variable not set.');
+                                }
+
+                                var command = 'globalVariables.' + assignee + ' = ' + value;
+                                $.eval(command);
+                                log(info.name + '(' + dom.attr('id') + ') => Executed successfully.');
+                                return res;
+                            }
+                        },
+                        {
+                            name: 'write2Console',
+                            title: 'Write to Console',
+                            icon: 'fas fa-terminal',
+                            class: 'element-write2console',
+                            constructor: function(isHost){
+                                var info = getElement('write2Console');
+                                var element = getActivityElement(info.name, isHost);
+                
+                                var body = $(element.find('.panel-body').first());
+                
+                                var casesRow = $('<div></div>')
+                                    .addClass('row sequence-row')
+                                    .appendTo(body);
+                
+                                var valueColumn = $('<div></div>')
+                                    .addClass('column')
+                                    .css('width', '100%')
+                                    .append($('<label>Message</label>'))
+                                    .append($('<br/>'))
+                                    .append($('<input type="text"/>')
+                                            .addClass('form-control'))
+                                    .appendTo(casesRow);   
+                                    
+                                valueColumn.children('input[type="text"]').on('change', function(){
+                                    validateFlow();
+                                });
+                
+                                return element;
+                            },
+                            validate: function(node){
+                                var dom = $(node);
+                                if(!dom.hasClass('element-write2console'))
+                                    throw new Error("Invalid control passed for validation.");
+
+                                var errorList = [];                                    
+                                var value = dom.find('input[type="text"]').first();
+                                if(value.val().trim() === '')
+                                    errorList.push('Please set the value of the message.');
+
+                                setErrorIcon(dom, errorList);
+                                return errorList;
+                            },
+                            getJSON: function(node){
+                                var dom = $(node);
+                                var info = getElement($(dom).attr('name'));
+
+                                var res = {
+                                    name: info.name,
+                                    id: dom.attr('id'),
+                                    title: info.title,
+                                    class: info.class
+                                };
+
+                                var columns = dom.children('.panel-body').children('.sequence-row').children('.column');
+                                res.message = $(columns[0]).children('input.form-control').val();
+
+                                return res;
+                            },
+                            execute: function(node){
+                                var dom = $(node);
+                                var info = getElement($(dom).attr('name'));
+                                log(info.name + '(' + dom.attr('id') + ') => Executing...');
+
+                                var dom = $(node);
+                                var columns = dom.children('.panel-body').children('.sequence-row').children('.column');
+                                var message = $(columns[0]).children('input.form-control').val();
+
+                                var command = 'console.log("'+message+'")';
+                                $.eval(command);
+                                log(info.name + '(' + dom.attr('id') + ') => Executed successfully.');
+                                return res;
                             }
                         }
                     ]
