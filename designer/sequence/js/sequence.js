@@ -114,6 +114,16 @@
                                 });
 
                                 return res;
+                            },
+                            execute: function(info){
+                                log(info.name + '(' + info.id + ') => Executing...');
+
+                                $.each(info.children, function(){
+                                    executeActivity(this);
+                                });
+
+                                log(info.name + '(' + info.id + ') => Executed successfully.');
+                                return res;
                             }
                         },
                         {
@@ -253,55 +263,34 @@
 
                                 return res;
                             },
-                            execute: function(node){
-                                var dom = $(node);
-                                var info = getElement($(dom).attr('name'));
-                                log(info.name + '(' + dom.attr('id') + ') => Executing...');
-
-                                var rows = dom.children('.panel-body').children('.sequence-row');
-                                var condition = $(rows[0]).children('.condition-input').val();
-                                condition = condition.replace(':', ' globalVariables.');
+                            execute: function(info){
+                                log(info.name + '(' + info.id + ') => Executing...');
+                                var normalizedCondition = info.condition.replace(':', ' globalVariables.');
                                 var conditionResult;
                                 try{
-                                    conditionResult = $.eval(condition);
+                                    conditionResult = $.eval(normalizedCondition);
                                 }
                                 catch(ex){
-                                    log(info.name + '(' + dom.attr('id') + ') => Error in processing condition.\n' + ex.message, 'Error');
-                                    throw new Error(info.name + '(' + dom.attr('id') + ') => Error in processing condition.\n' + ex.message);
+                                    log(info.name + '(' + info.id + ') => Error in processing condition.\n' + ex.message, 'Error');
+                                    throw new Error(info.name + '(' + info.id + ') => Error in processing condition.\n' + ex.message);
                                 }
 
                                 if(conditionResult){
-                                    var ifColumn = $(rows[1]).children('.column').children('.container-if');
-                                    var ifDom = $(ifColumn.children('.sequence-control'));
-                                    if(ifDom.length === 0)
-                                        log(info.name + '(' + dom.attr('id') + ') => No action to execute.');
+                                    if(res.if.name === undefined)
+                                        log(info.name + '(' + info.id + ') => No action to execute.');
                                     else{
-                                        var name = ifDom.attr('name');
-                                        var info = getElement(name);
-                                        if($.isFunction(info.execute)) {
-                                            info.execute(ifDom);
-                                            log(info.name + '(' + dom.attr('id') + ') => Executed successfully');
-                                        }
-                                        else
-                                            log(name + '(' + ifDom.attr('id') + ') => Execute method not implemented.');
+                                        executeActivity(info.if);
                                     }
                                 }
                                 else{
-                                    var elseColumn = $(rows[1]).children('.column').children('.container-else');
-                                    var elseDom = $(elseColumn.children('.sequence-control'));
-                                    if(elseDom.length === 0)
-                                        log(info.name + '(' + dom.attr('id') + ') => No action to execute.');
+                                    if(res.else.name === undefined)
+                                        log(info.name + '(' + info.id + ') => No action to execute.');
                                     else{
-                                        var name = elseDom.attr('name');
-                                        var info = getElement(name);
-                                        if($.isFunction(info.execute)){
-                                            info.execute(elseDom);
-                                            log(info.name + '(' + dom.attr('id') + ') => Executed successfully');
-                                        }
-                                        else
-                                            log(name + '(' + ifDom.attr('id') + ') => Execute method not implemented.');
+                                        executeActivity(info.else);
                                     }
                                 }
+
+                                log(info.name + '(' + info.id + ') => Executed successfully');
                             }
                         },
                         {
@@ -389,11 +378,39 @@
                                     var name = container.attr('name');
                                     var info = getElement(name);
                                     if($.isFunction(info.getJSON))
-                                        res.else = info.getJSON(container);
+                                        res.loop = info.getJSON(container);
                                     else
                                         res.loop = {};
                                 }
 
+                                return res;
+                            },
+                            execute: function(info){
+                                log(info.name + '(' + info.id + ') => Executing...');
+
+                                var normalizedCondition = info.condition.replace(':', ' globalVariables.');
+                                var conditionResult = null;
+                                try{
+                                    conditionResult = $.eval(normalizedCondition);
+                                }
+                                catch(ex){
+                                    log(info.name + '(' + info.id + ') => Error in evaluating the condition.\n' + ex.message, 'Error');
+                                    throw new Error(info.name + '(' + info.id + ') => Error in evaluating the condition.\n' + ex.message);
+                                }
+
+                                if(info.loop.name !== undefined){
+                                    try{
+                                        while(conditionResult){
+                                            executeActivity(info.loop);
+                                        }
+                                    }
+                                    catch(ex){
+                                        log(info.name + '(' + info.id + ') => Error in processing the while.\n' + ex.message, 'Error');
+                                        throw new Error(info.name + '(' + info.id + ') => Error in processing the while.\n' + ex.message);
+                                    }
+                                }
+
+                                log(info.name + '(' + info.id + ') => Executed successfully.');
                                 return res;
                             }
                         },
@@ -481,23 +498,21 @@
 
                                 return res;
                             },
-                            execute: function(node){
-                                var dom = $(node);
-                                var info = getElement($(dom).attr('name'));
-                                log(info.name + '(' + dom.attr('id') + ') => Executing...');
+                            execute: function(info){
+                                log(info.name + '(' + info.id + ') => Executing...');
 
-                                var columns = dom.children('.panel-body').children('.sequence-row').children('.column');
-                                var assignee = $(columns[0]).children('select').val();
-                                var value = $(columns[1]).children('input.form-control').val();
-
-                                if(assignee === null){
-                                    log(info.name + '(' + dom.attr('id') + ') => Variable not set.', 'Error');
-                                    throw new Error(info.name + '(' + dom.attr('id') + ') => Variable not set.');
+                                if(info.variable === null){
+                                    log(info.name + '(' + info.id + ') => Variable not set.', 'Error');
+                                    throw new Error(info.name + '(' + info.id + ') => Variable not set.');
                                 }
 
-                                var command = 'globalVariables.' + assignee + ' = ' + value;
+                                var command = 'globalVariables.' + info.variable + ' = ';
+                                if(typeof(variable) === 'string')
+                                    command = command + '"' + info.value + '"';
+                                else
+                                    command = command + info.value;
                                 $.eval(command);
-                                log(info.name + '(' + dom.attr('id') + ') => Executed successfully.');
+                                log(info.name + '(' + info.id + ') => Executed successfully.');
                                 return res;
                             }
                         },
@@ -560,17 +575,12 @@
 
                                 return res;
                             },
-                            execute: function(node){
-                                var dom = $(node);
-                                var info = getElement($(dom).attr('name'));
-                                log(info.name + '(' + dom.attr('id') + ') => Executing...');
-
-                                var columns = dom.children('.panel-body').children('.sequence-row').children('.column');
-                                var message = $(dom.find('input.form-control')[0]).val();
-
-                                var command = 'console.log("'+message+'")';
+                            execute: function(info){
+                                log(info.name + '(' + info.id + ') => Executing...');
+                                var normalizedCondition = info.message.replace(':', ' globalVariables.');
+                                var command = 'console.log("' + normalizedCondition + '")';
                                 $.eval(command);
-                                log(info.name + '(' + dom.attr('id') + ') => Executed successfully.');
+                                log(info.name + '(' + info.id + ') => Executed successfully.');
                                 return res;
                             }
                         }
@@ -903,6 +913,21 @@
                     settings.modelChanged();
             }
 
+            var executeActivity = function(activity){
+                var info = getElement(activity.name);
+                if(info === null || info === undefined){
+                    log("executeActivity => Activity with name " + activity.name + " not found", "Error");
+                    throw new Error("executeActivity => Activity with name " + activity.name + " not found");
+                }
+
+                if(!$.isFunction(info.execute)){
+                    log("executeActivity => Execute method not declared for " + activity.name, "Error");
+                    throw new Error("executeActivity => Execute method not declared for " + activity.name);
+                }
+
+                info.execute(activity);
+            }
+
             // Public functions
             this.getElements = function(){
                 var groups = [];
@@ -930,6 +955,23 @@
                     return info.getJSON(root);
 
                 return {};
+            }
+
+            this.replaceDropZone = function(dropZone, newElementName){
+                if(!$(dropZone).hasClass('drop-zone'))
+                    throw new Error('This method needs a drop-zone class');
+                
+                var info = getElement(newElementName);
+                if(info === null || info === undefined)
+                    throw new Error(newElementName + " is not valid element name");
+
+                var newItem = info.constructor(false);
+                var parent = dropZone.parents('.sequence-control').first();
+                dropZone.replaceWith(newItem);
+                if(parent.hasClass('element-sequence'))
+                    updateSequenceContent(parent);
+                    
+                validateFlow();
             }
 
             var designer = init(this);

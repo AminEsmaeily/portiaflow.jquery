@@ -8,9 +8,10 @@
         <link rel="stylesheet" href="../../designer/sequence/css/sequence.css">
 
         <link rel="stylesheet" href="node_modules/golden-layout/src/css/goldenlayout-base.css">
-        <link rel="stylesheet" href="node_modules/golden-layout/src/css/goldenlayout-translucent-theme.css">
+        <link rel="stylesheet" href="node_modules/golden-layout/src/css/goldenlayout-light-theme.css">
         <link rel="stylesheet" href="css/site.css">
         <link rel="stylesheet" href="node_modules/jquery.beautify/beautify-json.css">
+        <link rel="stylesheet" href="node_modules/paulkinzett-toolbar/jquery.toolbar.css">
     </header>
     <body>
     </body>
@@ -28,6 +29,7 @@
 
     <script src="node_modules/golden-layout/dist/goldenlayout.min.js"></script>
     <script src="node_modules/jquery.beautify/jquery.beautify-json.js"></script>
+    <script src="node_modules/paulkinzett-toolbar/jquery.toolbar.js"></script>
 
     <script>
         var seqDesigner;
@@ -81,7 +83,7 @@
 
             var myLayout  = new GoldenLayout(config);
 
-            var diagram = $('<div></div>').seqDesigner(
+            seqDesigner = $('<div></div>').seqDesigner(
                 {
                     hostControl : 'sequence',
                     drawGridLines : true,
@@ -95,7 +97,7 @@
                                     icon: 'fa-plus',
                                     class: 'element-sum',
                                     constructor: function(){
-                                        var element = diagram.getElementStructure('sum');
+                                        var element = seqDesigner.getElementStructure('sum');
                                         var body = element.find('.panel-body').first();
                                         console.log(body);
                                         $('<input type="text"/>').appendTo($(body));
@@ -112,12 +114,21 @@
                         }
                     ],
                     modelChanged : function(){
-                        var json = diagram.getJSON();
+                        console.log(seqDesigner);
+                        var json = seqDesigner.getJSON();
                         $('#outputJSON').text(JSON.stringify(json));
                         $('#outputJSON').beautifyJSON({
                             collapsible:true,
                             color:true,
                             hoverable: false,
+                        });                        
+
+                        $.each($('.drop-zone'), function(){
+                            $(this).toolbar({
+                                content: getToolBoxMenu($(this)),
+                                event: 'click',
+                                hideOnClick: true
+                            });
                         });
                     },
                     selectedNodeChanged : function(item){
@@ -134,26 +145,26 @@
 
                         var li = $('<li></li>')
                             .appendTo(loggerUl);
-                        if(item.level === 'error')
+                        if(log.level === 'error')
                             li.addClass("text-danger");
                         else
                             li.addClass(".text-light");
 
                         $('<i></i>')
                             .addClass('fa')
-                            .addClass(item.level === 'error' ? 'fa-warning' : 'fa-info')
+                            .addClass(log.level === 'error' ? 'fa-warning' : 'fa-info')
                             .css('width', '15px')
                             .appendTo(li);
 
                         $('<span></span>')
                             .css('margin-left', '10px')
                             .css('width', '150px')
-                            .append(log.eventDate.getFullYear() + "/" + 
-                                getPaddedComp(log.eventDate.getMonth()) + "/" + 
-                                getPaddedComp(log.eventDate.getDate()) + " " +
-                                log.eventDate.getHours() + ":" + 
-                                getPaddedComp(log.eventDate.getMinutes()) + ":" +
-                                getPaddedComp(log.eventDate.getSeconds()))
+                            .append(log.dateTime.getFullYear() + "/" + 
+                                getPaddedComp(log.dateTime.getMonth()) + "/" + 
+                                getPaddedComp(log.dateTime.getDate()) + " " +
+                                log.dateTime.getHours() + ":" + 
+                                getPaddedComp(log.dateTime.getMinutes()) + ":" +
+                                getPaddedComp(log.dateTime.getSeconds()))
                             .appendTo(li);
 
                         $('<span></span>')
@@ -167,15 +178,15 @@
                 if(componentState.contentType === "designer"){
                     container.getElement().html($("<div></div>")
                         .addClass("designerContainer")
-                        .append(diagram.first()).first());
+                        .append(seqDesigner.first()).first());
                 }
                 else if(componentState.contentType === "toolbox"){
-                    container.getElement().html(getToolbox(diagram.getElements()));
+                    container.getElement().html(getToolbox(seqDesigner.getElements()));
                 }
                 else if(componentState.contentType === "output"){
                     var outputPanel = getOutputPanel();
                     container.getElement().html(outputPanel);
-                    var json = diagram.getJSON();
+                    var json = seqDesigner.getJSON();
                     $(outputPanel.find('#outputJSON')).text(JSON.stringify(json, null, 4));
                     $(outputPanel.find('#outputJSON')).beautifyJSON({
                         collapsible:true,
@@ -196,13 +207,22 @@
                         .attr('id', 'loggerUl')
                         .css("width", "100%")
                         .css('padding', '10px')
-                        .css('background-color', '#333')
+                        .css('background-color', '#fff')
+                        .css('font-size', 'small')
                         .appendTo(parent);
 
                     container.getElement().html(parent);
                 }
             });
-            myLayout.init();
+            myLayout.init();            
+
+            $.each($('.drop-zone'), function(){
+                $(this).toolbar({
+                    content: getToolBoxMenu($(this)),
+                    event: 'click',
+                    hideOnClick: true
+                });
+            });
         });
 
         var getToolbox = function(items){
@@ -239,6 +259,28 @@
             return container.css('padding', '5');
         }
 
+        var getToolBoxMenu = function(sender){
+            var tools = seqDesigner.getElements();
+            var menu = $('<div class="hidden"></div>');
+            $.each(tools, function(i, group){
+                $.each(group.controls, function(j, tool){
+                    var item = $('<a href="#"></a>')
+                        .attr('name', tool.name)
+                        .attr('title', tool.title)
+                        .append($('<i></i>')
+                            .addClass('fa')
+                            .addClass(tool.icon))
+                        .appendTo(menu);
+
+                    item.click(function(){
+                        seqDesigner.replaceDropZone(sender, $(this).attr('name'));
+                    });
+                });
+            });
+
+            return menu;
+        }
+
         var getOutputPanel = function(){
             var container = $('<div></div>')
                 .css('height', '100%')
@@ -248,7 +290,7 @@
             $('<p></p>')
                 .attr('id', 'outputJSON')
                 .css('padding', '10px')
-                .css('background-color', '#333')
+                .css('background-color', '#fff')
                 .appendTo(container);
 
             return container;
