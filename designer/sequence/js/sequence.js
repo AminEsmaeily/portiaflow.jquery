@@ -44,10 +44,10 @@
                 onLog : null
             }, options || {});
 
-            var globalVariables = [
-                'variable1',
-                'variable2'
-            ];
+            window.globalVariables = {
+                variable1 : 0,
+                variable2 : 1
+            };
 
             
             var mainElements = 
@@ -123,7 +123,6 @@
                                 });
 
                                 log(info.name + '(' + info.id + ') => Executed successfully.');
-                                return res;
                             }
                         },
                         {
@@ -265,25 +264,30 @@
                             },
                             execute: function(info){
                                 log(info.name + '(' + info.id + ') => Executing...');
-                                var normalizedCondition = info.condition.replace(':', ' globalVariables.');
-                                var conditionResult;
+                                if(info.condition.trim() === ''){
+                                    log(info.name + '(' + info.id + ') => Condition is not set.', 'error');
+                                    throw new Error(info.name + '(' + info.id + ') => Condition is not set');
+                                }
+
+                                var normalizedCondition = info.condition.replace(/\:/g, ' window.globalVariables.');
                                 try{
-                                    conditionResult = $.eval(normalizedCondition);
+                                    normalizedCondition = 'var conditionResult = ' + normalizedCondition;
+                                    $.globalEval(normalizedCondition);
                                 }
                                 catch(ex){
-                                    log(info.name + '(' + info.id + ') => Error in processing condition.\n' + ex.message, 'Error');
+                                    log(info.name + '(' + info.id + ') => Error in processing condition.\n' + ex.message, 'error');
                                     throw new Error(info.name + '(' + info.id + ') => Error in processing condition.\n' + ex.message);
                                 }
 
                                 if(conditionResult){
-                                    if(res.if.name === undefined)
+                                    if(info.if.name === undefined)
                                         log(info.name + '(' + info.id + ') => No action to execute.');
                                     else{
                                         executeActivity(info.if);
                                     }
                                 }
                                 else{
-                                    if(res.else.name === undefined)
+                                    if(info.else.name === undefined)
                                         log(info.name + '(' + info.id + ') => No action to execute.');
                                     else{
                                         executeActivity(info.else);
@@ -388,13 +392,12 @@
                             execute: function(info){
                                 log(info.name + '(' + info.id + ') => Executing...');
 
-                                var normalizedCondition = info.condition.replace(':', ' globalVariables.');
-                                var conditionResult = null;
+                                var normalizedCondition = info.condition.replace(/\:/g, ' window.globalVariables.');
                                 try{
-                                    conditionResult = $.eval(normalizedCondition);
+                                    $.globalEval('var conditionResult = ' + normalizedCondition);
                                 }
                                 catch(ex){
-                                    log(info.name + '(' + info.id + ') => Error in evaluating the condition.\n' + ex.message, 'Error');
+                                    log(info.name + '(' + info.id + ') => Error in evaluating the condition.\n' + ex.message, 'error');
                                     throw new Error(info.name + '(' + info.id + ') => Error in evaluating the condition.\n' + ex.message);
                                 }
 
@@ -402,22 +405,29 @@
                                     try{
                                         while(conditionResult){
                                             executeActivity(info.loop);
+                                            
+                                            try{
+                                                $.globalEval('conditionResult = ' + normalizedCondition);
+                                            }
+                                            catch(ex){
+                                                log(info.name + '(' + info.id + ') => Error in evaluating the condition.\n' + ex.message, 'error');
+                                                throw new Error(info.name + '(' + info.id + ') => Error in evaluating the condition.\n' + ex.message);
+                                            }
                                         }
                                     }
                                     catch(ex){
-                                        log(info.name + '(' + info.id + ') => Error in processing the while.\n' + ex.message, 'Error');
+                                        log(info.name + '(' + info.id + ') => Error in processing the while.\n' + ex.message, 'error');
                                         throw new Error(info.name + '(' + info.id + ') => Error in processing the while.\n' + ex.message);
                                     }
                                 }
 
                                 log(info.name + '(' + info.id + ') => Executed successfully.');
-                                return res;
                             }
                         },
                         {
                             name: 'assign',
                             title: 'Assign',
-                            icon: 'exchange-alt fa-exchange',
+                            icon: 'fas fa-sign-in',
                             class: 'element-assign',
                             constructor: function(isHost){
                                 var info = getElement('assign');
@@ -439,12 +449,12 @@
 
                                 var defaultOption = $('<option disabled selected value>select a variable</option>');
                                 variableColumn.children('select').append(defaultOption);
-                                $.each(globalVariables, function(index, item){
+                                for(var key in window.globalVariables){
                                     var option = $('<option></option>')
-                                        .attr('value', item)
-                                        .append(item);
+                                        .attr('value', key)
+                                        .append(key);
                                     variableColumn.children('select').append(option);
-                                });
+                                }
 
                                 variableColumn.children('select').on('change', function(){
                                     validateFlow();
@@ -502,18 +512,25 @@
                                 log(info.name + '(' + info.id + ') => Executing...');
 
                                 if(info.variable === null){
-                                    log(info.name + '(' + info.id + ') => Variable not set.', 'Error');
+                                    log(info.name + '(' + info.id + ') => Variable not set.', 'error');
                                     throw new Error(info.name + '(' + info.id + ') => Variable not set.');
                                 }
 
-                                var command = 'globalVariables.' + info.variable + ' = ';
+                                var command = 'window.globalVariables.' + info.variable + ' = ';
                                 if(typeof(variable) === 'string')
                                     command = command + '"' + info.value + '"';
                                 else
                                     command = command + info.value;
-                                $.eval(command);
-                                log(info.name + '(' + info.id + ') => Executed successfully.');
-                                return res;
+                                
+                                command = command.replace(/\:/g, ' window.globalVariables.');
+                                try{
+                                    jQuery.globalEval(command);
+                                    log(info.name + '(' + info.id + ') => Executed successfully.');
+                                }
+                                catch(ex){
+                                    log(info.name + '(' + info.id + ') => Error in assigning value.\n'+ex.message, 'error');
+                                    throw new Error(info.name + '(' + info.id + ') => Error in assigning value.\n'+ex.message);
+                                }
                             }
                         },
                         {
@@ -577,11 +594,10 @@
                             },
                             execute: function(info){
                                 log(info.name + '(' + info.id + ') => Executing...');
-                                var normalizedCondition = info.message.replace(':', ' globalVariables.');
-                                var command = 'console.log("' + normalizedCondition + '")';
-                                $.eval(command);
+                                var normalizedCondition = info.message.replace(/\:/g, ' window.globalVariables.');
+                                var command = 'console.log(' + normalizedCondition + ')';
+                                jQuery.globalEval(command);
                                 log(info.name + '(' + info.id + ') => Executed successfully.');
-                                return res;
                             }
                         }
                     ]
@@ -637,7 +653,7 @@
                     settings.onLog(
                         {
                             dateTime: new Date(),
-                            level: level === undefined || level === null ? 'Information' : level,
+                            level: level === undefined || level === null ? 'information' : level,
                             message: message
                         }
                     );
@@ -916,16 +932,23 @@
             var executeActivity = function(activity){
                 var info = getElement(activity.name);
                 if(info === null || info === undefined){
-                    log("executeActivity => Activity with name " + activity.name + " not found", "Error");
+                    log("executeActivity => Activity with name " + activity.name + " not found", "error");
                     throw new Error("executeActivity => Activity with name " + activity.name + " not found");
                 }
 
                 if(!$.isFunction(info.execute)){
-                    log("executeActivity => Execute method not declared for " + activity.name, "Error");
+                    log("executeActivity => Execute method not declared for " + activity.name, "error");
                     throw new Error("executeActivity => Execute method not declared for " + activity.name);
                 }
 
-                info.execute(activity);
+                var activityDom = $(document).find('#'+activity.id);
+                if(activityDom.length > 0){
+                    $(document).find('.sequence-control').removeClass('panel-warning');
+                    $(document).find('.sequence-control').removeClass('bg-warning');
+                    activityDom.addClass('panel-warning bg-warning');
+                }
+
+                info.execute(activity, window.globalVariables);
             }
 
             // Public functions
@@ -972,6 +995,23 @@
                     updateSequenceContent(parent);
                     
                 validateFlow();
+            }
+
+            this.run = function(workflow){  
+                if(workflow === null || workflow === undefined)
+                    workflow = designer.getJSON();
+
+                try{
+                    log("Start to run the workflow");
+                    executeActivity(workflow);
+                    log("Workflow ran successfully.");
+                }
+                catch(ex){
+                    log("Error in running the workflow.\n" + ex.message, "error");
+                }
+
+                $(document).find('.sequence-control').removeClass('panel-warning');
+                $(document).find('.sequence-control').removeClass('bg-warning');
             }
 
             var designer = init(this);
