@@ -16,3 +16,7 @@
     border: 1px solid #aaa;
     width: 100%;
 }
+
+.btn-toolbar.action-item{
+    display: inline-block;
+}

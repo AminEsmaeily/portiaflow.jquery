@@ -59,9 +59,19 @@
                             title: 'Sequence',
                             icon: 'fa-sitemap',
                             class: 'element-sequence',
-                            constructor: function(isHost){
-                                var element = getActivityElement('sequence', isHost);
+                            constructor: function(isHost, dataToLoad){
+                                var element = getActivityElement('sequence', isHost, dataToLoad);
                 
+                                if(dataToLoad !== null && dataToLoad !== undefined){
+                                    var body = $(element.find('.panel-body').first());
+                                    body.empty();
+
+                                    $.each(dataToLoad.children, function(){
+                                        var child = loadNode(this, false);
+                                        body.append(child);
+                                    });
+                                }
+
                                 updateSequenceContent(element);
                                 return element;
                             },
@@ -130,7 +140,7 @@
                             title: 'If',
                             icon: 'fa-exchange',
                             class: 'element-if',
-                            constructor: function(isHost){
+                            constructor: function(isHost, dataToLoad){
                                 var element = getActivityElement('if', isHost);
                 
                                 var body = $(element.find('.panel-body').first());
@@ -170,6 +180,20 @@
                                         .addClass('container-else')
                                         .append(getDropZone()))
                                     .appendTo(casesRow);
+                                    
+
+                                if(dataToLoad !== null && dataToLoad !== undefined){
+                                    conditionRow.children('input[type="text"]').val(dataToLoad.condition);
+                                    if(dataToLoad.if !== {}){
+                                        ifColumn.children('.container-if').empty();
+                                        ifColumn.children('.container-if').append(loadNode(dataToLoad.if, false));
+                                    }
+
+                                    if(dataToLoad.else !== {}){
+                                        elseColumn.children('.container-else').empty();
+                                        elseColumn.children('.container-else').append(loadNode(dataToLoad.else, false));
+                                    }
+                                }
                 
                                 return element;
                             },
@@ -302,7 +326,7 @@
                             title: 'While',
                             icon: 'fa-refresh',
                             class: 'element-while',
-                            constructor: function(isHost){
+                            constructor: function(isHost, dataToLoad){
                                 var element = getActivityElement('while', isHost);
                 
                                 var body = $(element.find('.panel-body').first());
@@ -329,6 +353,13 @@
                                     .css('margin-top', '5px')
                                     .appendTo(body);
                 
+                                if(dataToLoad !== null && dataToLoad !== undefined){
+                                    conditionRow.children('input[type="text"]').val(dataToLoad.condition);
+                                    if(dataToLoad.loop !== {}){
+                                        loopRow.children('.container-div').empty();
+                                        loopRow.children('.container-div').append(loadNode(dataToLoad.loop, false));
+                                    }
+                                }
                 
                                 return element;
                             },
@@ -429,7 +460,7 @@
                             title: 'Assign',
                             icon: 'fas fa-sign-in',
                             class: 'element-assign',
-                            constructor: function(isHost){
+                            constructor: function(isHost, dataToLoad){
                                 var info = getElement('assign');
                                 var element = getActivityElement(info.name, isHost);
                 
@@ -471,6 +502,11 @@
                                 valueColumn.children('input[type="text"]').on('change', function(){
                                     validateFlow();
                                 });
+
+                                if(dataToLoad !== null && dataToLoad !== undefined){
+                                    variableColumn.children('select').val(dataToLoad.variable);
+                                    valueColumn.children('input[type="text"]').val(dataToLoad.value);
+                                }
                 
                                 return element;
                             },
@@ -538,13 +574,13 @@
                             title: 'Write to Console',
                             icon: 'fas fa-terminal',
                             class: 'element-write2console',
-                            constructor: function(isHost){
+                            constructor: function(isHost, dataToLoad){
                                 var info = getElement('write2Console');
                                 var element = getActivityElement(info.name, isHost);
                 
                                 var body = $(element.find('.panel-body').first());
                 
-                                var casesRow = $('<div></div>')
+                                var valueRow = $('<div></div>')
                                     .addClass('row sequence-row')
                                     .appendTo(body);
                 
@@ -555,11 +591,15 @@
                                     .append($('<br/>'))
                                     .append($('<input type="text"/>')
                                             .addClass('form-control'))
-                                    .appendTo(casesRow);   
+                                    .appendTo(valueRow);   
                                     
                                 valueColumn.children('input[type="text"]').on('change', function(){
                                     validateFlow();
                                 });
+
+                                if(dataToLoad !== null && dataToLoad !== undefined){
+                                    valueColumn.children("input[type='text']").val(dataToLoad.message);
+                                }
                 
                                 return element;
                             },
@@ -661,7 +701,7 @@
             }
 
             // This method constructs the main skleton of the element
-            var getActivityElement = function(controlName, isHost = false){
+            var getActivityElement = function(controlName, isHost = false, dataToLoad){
                 if(controlName === undefined)
                     throw 'Control name is undefined.';
 
@@ -670,7 +710,7 @@
                 if(controlInfo === null)
                     throw 'Control with name ' + controlName + ' not found.';
 
-                var id = 'activity' + newUniqId();
+                var id = dataToLoad === null || dataToLoad === undefined ? 'activity' + newUniqId() : dataToLoad.id;
                 var element = $('<div></div>')
                     .attr('id', id)
                     .addClass('sequence-control')
@@ -766,7 +806,7 @@
                 errorIcon.attr('title', 'Please fix errors');
 
                 header.append($('<i class="fa '+controlInfo.icon+'"></i>'));
-                header.append(controlInfo.title);
+                header.append(dataToLoad === null || dataToLoad === undefined ? controlInfo.title : dataToLoad.title);
 
                 var body =  $('<div></div>')
                     .addClass('panel-body card-body')
@@ -951,6 +991,15 @@
                 info.execute(activity, window.globalVariables);
             }
 
+            var loadNode = function(node, isRoot){
+                var info = getElement(node.name);
+                if(info === null || info === undefined)
+                    throw new Error("Element with name " + node.name + " not found.");
+
+                var newActivity = info.constructor(isRoot, node);
+                return newActivity;
+            }
+
             // Public functions
             this.getElements = function(){
                 var groups = [];
@@ -1004,7 +1053,7 @@
                 try{
                     log("Start to run the workflow");
                     executeActivity(workflow);
-                    log("Workflow ran successfully.");
+                    log("Workflow finished successfully.");
                 }
                 catch(ex){
                     log("Error in running the workflow.\n" + ex.message, "error");
@@ -1012,6 +1061,25 @@
 
                 $(document).find('.sequence-control').removeClass('panel-warning');
                 $(document).find('.sequence-control').removeClass('bg-warning');
+            }
+
+            this.load = function(data){
+                $(designer).empty();
+                if(data === {})
+                    return;
+
+                try{
+                    var parentNode = loadNode(data, true);
+                    $(designer).append(parentNode);
+
+                    validateFlow();
+                }
+                catch{
+                    $.alert({
+                        title: 'Loading data',
+                        content: 'Invalid data found.'
+                    });
+                }
             }
 
             var designer = init(this);

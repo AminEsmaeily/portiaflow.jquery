@@ -15,7 +15,10 @@
     </header>
     <body>
         <div class="toolbar">
-            <a class="btn-toolbar btn-toolbar-success" title="Run" id="btnRun"><i class="fa fa-play"></i></a>
+            <a class="btn-toolbar action-item btn-toolbar-primary" title="Open" id="btnOpen"><i class="fa fa-folder-open"></i></a>
+            <input type="file" style="display: none" id="inputOpenFile"/>
+            <a class="btn-toolbar action-item btn-toolbar-primary" title="Save" id="btnSave"><i class="fa fa-save"></i></a>
+            <a class="btn-toolbar action-item btn-toolbar-success" title="Run" id="btnRun"><i class="fa fa-play"></i></a>
         </div>
         <div id="designerContainer" style="width:100%; height:90%"></div>
     </body>
@@ -303,6 +306,69 @@
     
         $('#btnRun').click(function(){
             seqDesigner.run();
+        });
+
+        var textFile = null;
+        $('#btnSave').click(function(){
+            var jsonData = JSON.stringify(seqDesigner.getJSON());
+            var data = new Blob([jsonData], {type: 'text/plain'});
+
+            // If we are replacing a previously generated file we need to
+            // manually revoke the object URL to avoid memory leaks.
+            if (textFile !== null) {
+                window.URL.revokeObjectURL(textFile);
+            }
+
+            textFile = window.URL.createObjectURL(data);
+
+            var win = window.open(textFile, '_blank');
+            if (win) {
+                //Browser has allowed it to be opened
+                win.focus();
+            } else {
+                //Browser has blocked it
+                $.alert({
+                    title: 'Save',
+                    content: 'Please allow popups for this website.'
+                });
+            }
+        });
+
+        $("#btnOpen").on("click", function() {
+            $("#inputOpenFile").trigger("click");
+        });
+
+        $("#inputOpenFile").change(function(){
+            if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
+                $.alert('The File APIs are not fully supported in this browser.');
+                return;
+            } 
+
+            var input = document.getElementById('inputOpenFile');
+            if (!input) {
+                $.alert("Um, couldn't find the fileinput element.");
+            }
+            else if (!input.files) {
+                $.alert("This browser doesn't seem to support the `files` property of file inputs.");
+            }
+            else if (!input.files[0]) {
+                $.alert("Please select a file before clicking 'Load'");               
+            }
+            else {
+                file = input.files[0];
+                fr = new FileReader();
+                fr.onload = function(){
+                    try{
+                        var json = $.parseJSON(fr.result);
+                        seqDesigner.load(json);
+                    }
+                    catch(ex){
+                        console.log(ex);
+                        $.alert("Input file is not a valid JSON file.");
+                    }
+                };
+                fr.readAsText(file);
+            }
         });
     </script>
 </html>
