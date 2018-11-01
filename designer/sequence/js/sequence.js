@@ -48,7 +48,7 @@
                 {
                     title: 'Main Elements',
                     controls: [
-                        {
+/* Sequence */          {
                             name: 'sequence',
                             title: 'Sequence',
                             icon: 'fa-sitemap',
@@ -120,16 +120,16 @@
                                 return res;
                             },
                             execute: function(info){
-                                log(info.name + '(' + info.id + ') => Executing...');
+                                log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Executing...');
 
                                 $.each(info.children, function(){
                                     executeActivity(this);
                                 });
 
-                                log(info.name + '(' + info.id + ') => Executed successfully.');
+                                log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Executed successfully.');
                             }
                         },
-                        {
+/* If */                {
                             name: 'if',
                             title: 'If',
                             icon: 'fa-exchange',
@@ -144,6 +144,7 @@
                                     .append($('<br/>'))
                                     .append($('<input type="text"/>')
                                         .addClass('condition-input')
+                                        .addClass('expressionable')
                                         .addClass('form-control'))
                                     .appendTo(body);
 
@@ -281,10 +282,10 @@
                                 return res;
                             },
                             execute: function(info){
-                                log(info.name + '(' + info.id + ') => Executing...');
+                                log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Executing...');
                                 if(info.condition.trim() === ''){
-                                    log(info.name + '(' + info.id + ') => Condition is not set.', 'error');
-                                    throw new Error(info.name + '(' + info.id + ') => Condition is not set');
+                                    log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Condition is not set.', 'error');
+                                    throw new Error(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Condition is not set');
                                 }
 
                                 var normalizedCondition = info.condition.replace(/\:/g, ' window.globalVariables.');
@@ -293,29 +294,29 @@
                                     $.globalEval(normalizedCondition);
                                 }
                                 catch(ex){
-                                    log(info.name + '(' + info.id + ') => Error in processing condition.\n' + ex.message, 'error');
-                                    throw new Error(info.name + '(' + info.id + ') => Error in processing condition.\n' + ex.message);
+                                    log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Error in processing condition.\n' + ex.message, 'error');
+                                    throw new Error(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Error in processing condition.\n' + ex.message);
                                 }
 
                                 if(conditionResult){
                                     if(info.if.name === undefined)
-                                        log(info.name + '(' + info.id + ') => No action to execute.');
+                                        log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => No action to execute.');
                                     else{
                                         executeActivity(info.if);
                                     }
                                 }
                                 else{
                                     if(info.else.name === undefined)
-                                        log(info.name + '(' + info.id + ') => No action to execute.');
+                                        log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => No action to execute.');
                                     else{
                                         executeActivity(info.else);
                                     }
                                 }
 
-                                log(info.name + '(' + info.id + ') => Executed successfully');
+                                log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Executed successfully');
                             }
                         },
-                        {
+/* While */             {
                             name: 'while',
                             title: 'While',
                             icon: 'fa-refresh',
@@ -331,6 +332,7 @@
                                     .append($('<br/>'))
                                     .append($('<input type="text"/>')
                                         .addClass('condition-input')
+                                        .addClass('expressionable')
                                         .addClass('form-control'))
                                     .appendTo(body);
                                     
@@ -415,15 +417,15 @@
                                 return res;
                             },
                             execute: function(info){
-                                log(info.name + '(' + info.id + ') => Executing...');
+                                log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Executing...');
 
                                 var normalizedCondition = info.condition.replace(/\:/g, ' window.globalVariables.');
                                 try{
                                     $.globalEval('var conditionResult = ' + normalizedCondition);
                                 }
                                 catch(ex){
-                                    log(info.name + '(' + info.id + ') => Error in evaluating the condition.\n' + ex.message, 'error');
-                                    throw new Error(info.name + '(' + info.id + ') => Error in evaluating the condition.\n' + ex.message);
+                                    log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Error in evaluating the condition.\n' + ex.message, 'error');
+                                    throw new Error(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Error in evaluating the condition.\n' + ex.message);
                                 }
 
                                 if(info.loop.name !== undefined){
@@ -435,21 +437,21 @@
                                                 $.globalEval('conditionResult = ' + normalizedCondition);
                                             }
                                             catch(ex){
-                                                log(info.name + '(' + info.id + ') => Error in evaluating the condition.\n' + ex.message, 'error');
-                                                throw new Error(info.name + '(' + info.id + ') => Error in evaluating the condition.\n' + ex.message);
+                                                log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Error in evaluating the condition.\n' + ex.message, 'error');
+                                                throw new Error(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Error in evaluating the condition.\n' + ex.message);
                                             }
                                         }
                                     }
                                     catch(ex){
-                                        log(info.name + '(' + info.id + ') => Error in processing the while.\n' + ex.message, 'error');
-                                        throw new Error(info.name + '(' + info.id + ') => Error in processing the while.\n' + ex.message);
+                                        log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Error in processing the while.\n' + ex.message, 'error');
+                                        throw new Error(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Error in processing the while.\n' + ex.message);
                                     }
                                 }
 
-                                log(info.name + '(' + info.id + ') => Executed successfully.');
+                                log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Executed successfully.');
                             }
                         },
-                        {
+/* Assign */            {
                             name: 'assign',
                             title: 'Assign',
                             icon: 'fas fa-sign-in',
@@ -469,7 +471,8 @@
                                     .append($('<label>Variable/Argument</label>'))
                                     .append($('<br/>'))
                                     .append($('<input type="text"/>')
-                                            .addClass('form-control'))
+                                            .addClass('form-control')
+                                            .addClass('expressionable'))
                                     .appendTo(casesRow);
 
                                 variableColumn.children('input').on('change', function(){
@@ -481,7 +484,8 @@
                                     .append($('<label>Value</label>'))
                                     .append($('<br/>'))
                                     .append($('<input type="text"/>')
-                                            .addClass('form-control'))
+                                            .addClass('form-control')
+                                            .addClass('expressionable'))
                                     .appendTo(casesRow);   
                                     
                                 valueColumn.children('input[type="text"]').on('change', function(){
@@ -530,11 +534,11 @@
                                 return res;
                             },
                             execute: function(info){
-                                log(info.name + '(' + info.id + ') => Executing...');
+                                log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Executing...');
 
                                 if(info.variable === null){
-                                    log(info.name + '(' + info.id + ') => Variable not set.', 'error');
-                                    throw new Error(info.name + '(' + info.id + ') => Variable not set.');
+                                    log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Variable not set.', 'error');
+                                    throw new Error(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Variable not set.');
                                 }
 
                                 var command = 'window.globalVariables.' + info.variable + ' = ';
@@ -546,15 +550,15 @@
                                 command = command.replace(/\:/g, ' window.globalVariables.');
                                 try{
                                     jQuery.globalEval(command);
-                                    log(info.name + '(' + info.id + ') => Executed successfully.');
+                                    log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Executed successfully.');
                                 }
                                 catch(ex){
-                                    log(info.name + '(' + info.id + ') => Error in assigning value.\n'+ex.message, 'error');
-                                    throw new Error(info.name + '(' + info.id + ') => Error in assigning value.\n'+ex.message);
+                                    log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Error in assigning value.\n'+ex.message, 'error');
+                                    throw new Error(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Error in assigning value.\n'+ex.message);
                                 }
                             }
                         },
-                        {
+/* Write2Console */     {
                             name: 'write2Console',
                             title: 'Write to Console',
                             icon: 'fas fa-terminal',
@@ -575,7 +579,8 @@
                                     .append($('<label>Message</label>'))
                                     .append($('<br/>'))
                                     .append($('<input type="text"/>')
-                                            .addClass('form-control'))
+                                            .addClass('form-control')
+                                            .addClass('expressionable'))
                                     .appendTo(valueRow);   
                                     
                                 valueColumn.children('input[type="text"]').on('change', function(){
@@ -618,11 +623,11 @@
                                 return res;
                             },
                             execute: function(info){
-                                log(info.name + '(' + info.id + ') => Executing...');
+                                log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Executing...');
                                 var normalizedCondition = info.message.replace(/\:/g, ' window.globalVariables.');
                                 var command = 'console.log(' + normalizedCondition + ')';
                                 jQuery.globalEval(command);
-                                log(info.name + '(' + info.id + ') => Executed successfully.');
+                                log(info.name + '(<a class="linkToActivity" title="'+ info.id + '">' + info.id + '</a>) => Executed successfully.');
                             }
                         }
                     ]
@@ -673,6 +678,49 @@
                 }
             }
 
+            var getVariablesAndArguments = function(){
+                var assignActivities = $('.element-assign');
+                var result = [];
+                $.each(assignActivities, function(){
+                    var input = $($(this).find('.column')[0]).children('.expressionable').val();
+                    if(input === undefined || !isValidVariable(input, false))
+                        return;
+
+                    result.push(input);
+                });
+                return $.unique(result);
+            }
+
+            var isValidVariable = function(value, shouldHasAnnotation = true){
+                if(value === null || value === undefined)
+                    return false;
+
+                if(typeof(value) !== 'string')
+                    return false;
+
+                var firstChar = value.toLowerCase().substring(0,1);
+                if(shouldHasAnnotation){
+                    if(firstChar !== ':')
+                        return false;
+
+                    firstChar = value.toLowerCase().substring(1,1);
+                }
+
+                var validStartChars = 'abcdefghijklmnopqrstuvwxyz'.split('');
+                var validChars = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('');
+
+                if($.inArray(firstChar, validStartChars) < 0)
+                    return false;
+
+                var hasInvalidChar = false;
+                value.substring(1).split('').forEach(element => {
+                    if($.inArray(element, validChars) < 0)
+                        hasInvalidChar = true;
+                });
+
+                return !hasInvalidChar;
+            }
+
             var log = function(message, level){
                 if(settings.showLog && $.isFunction(settings.onLog)){
                     settings.onLog(
@@ -682,6 +730,14 @@
                             message: message
                         }
                     );
+
+                    $('.linkToActivity').mouseenter(function () { 
+                        $('#'+this.title).addClass('bg-warning panel-warning');
+                    });
+
+                    $('.linkToActivity').mouseleave(function () { 
+                        $('#'+this.title).removeClass('bg-warning panel-warning');
+                    });
                 }
             }
 
@@ -926,8 +982,9 @@
             var setErrorIcon = function(element, errors){
                 var errorIcon = $($(element).children('.card-header').first()).children('span.error');
                 if(errors === null || errors === undefined ||
-                    errors.length === 0)
+                    errors.length === 0){
                     errorIcon.css('display', 'none');
+                }
                 else{
                     errorIcon.css('display', 'block');
                     var title = "";
@@ -952,6 +1009,10 @@
                     
                 if($.isFunction(settings.modelChanged))
                     settings.modelChanged();
+
+                $('.expressionable').autocomplete({
+                    source: getVariablesAndArguments()
+                });
             }
 
             var executeActivity = function(activity){
@@ -1055,17 +1116,27 @@
                     return;
 
                 try{
+                    log("Loading model...");
                     var parentNode = loadNode(data, true);
                     $(designer).append(parentNode);
 
                     validateFlow();
+
+                    log("Model loaded successfully.");
                 }
-                catch{
+                catch(ex){
                     $.alert({
                         title: 'Loading data',
                         content: 'Invalid data found.'
                     });
+
+                    log("Error in loading model. \n" + ex.message, "error");
                 }
+            }
+
+            this.new = function(){
+                $(designer).empty();
+                init(designer);
             }
 
             var designer = init(this);

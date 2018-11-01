@@ -127,3 +127,8 @@ span.error{
     background-color: #455a64;
     color: white;
 }
+
+.linkToActivity{
+    cursor: pointer;
+    color: green !important;
+}
