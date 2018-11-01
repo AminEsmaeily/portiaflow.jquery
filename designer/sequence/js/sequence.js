@@ -43,12 +43,6 @@
                 selectedNodeChanged : null,
                 onLog : null
             }, options || {});
-
-            window.globalVariables = {
-                variable1 : 0,
-                variable2 : 1
-            };
-
             
             var mainElements = 
                 {
@@ -474,20 +468,11 @@
                                     .addClass('column')
                                     .append($('<label>Variable/Argument</label>'))
                                     .append($('<br/>'))
-                                    .append($('<select></select>')
+                                    .append($('<input type="text"/>')
                                             .addClass('form-control'))
                                     .appendTo(casesRow);
 
-                                var defaultOption = $('<option disabled selected value>select a variable</option>');
-                                variableColumn.children('select').append(defaultOption);
-                                for(var key in window.globalVariables){
-                                    var option = $('<option></option>')
-                                        .attr('value', key)
-                                        .append(key);
-                                    variableColumn.children('select').append(option);
-                                }
-
-                                variableColumn.children('select').on('change', function(){
+                                variableColumn.children('input').on('change', function(){
                                     validateFlow();
                                 });
                 
@@ -504,7 +489,7 @@
                                 });
 
                                 if(dataToLoad !== null && dataToLoad !== undefined){
-                                    variableColumn.children('select').val(dataToLoad.variable);
+                                    variableColumn.children('input').val(dataToLoad.variable);
                                     valueColumn.children('input[type="text"]').val(dataToLoad.value);
                                 }
                 
@@ -516,13 +501,13 @@
                                     throw new Error("Invalid control passed for validation.");
 
                                 var errorList = [];
-                                var variable = dom.find('select').first();
+                                var variable = $(dom.find('.column')[0]).children('input[type="text"]');
                                 if(variable.val() === '' || variable.val() === null)
-                                    errorList.push('Please select Variable/Argument');
+                                    errorList.push('Please enter Variable/Argument');
                                     
-                                var value = dom.find('input[type="text"]').first();
+                                var value = $(dom.find('.column')[1]).children('input[type="text"]');
                                 if(value.val().trim() === '')
-                                    errorList.push('Please set the value of the variable.');
+                                    errorList.push('Please enter the value.');
 
                                 setErrorIcon(dom, errorList);
                                 return errorList;
@@ -539,7 +524,7 @@
                                 };
 
                                 var columns = dom.children('.panel-body').children('.sequence-row').children('.column');
-                                res.variable = $(columns[0]).children('select').val();
+                                res.variable = $(columns[0]).children('input.form-control').val();
                                 res.value = $(columns[1]).children('input.form-control').val();
 
                                 return res;
@@ -1052,6 +1037,7 @@
 
                 try{
                     log("Start to run the workflow");
+                    window.globalVariables = {};
                     executeActivity(workflow);
                     log("Workflow finished successfully.");
                 }
