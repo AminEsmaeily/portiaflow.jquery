@@ -4,3 +4,4 @@ Portia Workflow is a lightweight JQuery based plugin that provides some features
 Portia Workflow engine can run any type of activities, so we can create custom activities and run them on the server side. To do this we should create a parser in the server to translate the output of the designed workflow to the expected business.  
 You can find documentation and samples [here](https://aminesmaeily.github.io/portia.workflow/).  
 
+![Alt Text](https://raw.githubusercontent.com/AminEsmaeily/portia.workflow/master/docs/files/gif001.gif)
