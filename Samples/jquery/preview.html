@@ -1,4 +1,9 @@
 <html encoding="UTF8">
+    <head>
+        <meta charset="utf-8"/>
+        <title>Portia Workflow Designer</title>
+        <link rel="shortcut icon" href="favicon.ico" type="image/ico">
+    </head>
     <header>
         <!--------------Required----------------->
         <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
@@ -295,7 +300,8 @@
             var container = $('<div></div>')
                 .css('height', '100%')
                 .css('width', '100%')
-                .css('overflow', 'auto');
+                .css('overflow', 'auto')
+                .css('font-size', 'small');
 
             $('<p></p>')
                 .attr('id', 'outputJSON')

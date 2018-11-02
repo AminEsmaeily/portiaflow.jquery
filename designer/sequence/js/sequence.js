@@ -508,6 +508,9 @@
                                 var variable = $(dom.find('.column')[0]).children('input[type="text"]');
                                 if(variable.val() === '' || variable.val() === null)
                                     errorList.push('Please enter Variable/Argument');
+                                else if(!isValidVariable(variable.val(), false))
+                                    errorList.push("Variable name is not valid");
+
                                     
                                 var value = $(dom.find('.column')[1]).children('input[type="text"]');
                                 if(value.val().trim() === '')
